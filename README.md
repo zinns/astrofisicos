@@ -15,6 +15,7 @@ Current focus:
 
 Legacy folders were removed after preserving the original logo asset in `public/logo/`.
 
+Documentation index lives in `docs/README.md`.
 Project notes and open backlog live in `docs/v2-project-notes.md`.
 Repository workflow, CI, release, and Vercel strategy live in `docs/repository-workflow-strategy.md`.
 
@@ -36,4 +37,4 @@ Current Phase 2 local gates:
 
 Current next step:
 
-- Phase 3: issue templates, PR templates, labels, and GitHub-side merge metadata rules
+- Phase 4: CI validation, branch protection, and merge gating beyond metadata rules

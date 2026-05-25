@@ -17,7 +17,9 @@
     "test:watch": "vitest --watch",
     "validate": "node ./scripts/validate.mjs",
     "validate:branch": "node ./scripts/validate-branch-name.mjs",
-    "validate:ci": "node ./scripts/validate.mjs --ci"
+    "validate:ci": "node ./scripts/validate.mjs --ci",
+    "validate:pr": "node ./scripts/validate-pr.mjs",
+    "labels:sync": "node ./scripts/sync-labels.mjs"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",

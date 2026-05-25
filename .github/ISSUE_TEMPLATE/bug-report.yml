@@ -1,0 +1,64 @@
+name: Bug Report
+description: Report a defect with enough detail to reproduce and fix it.
+title: "[Bug]: "
+labels:
+  - "type:fix"
+  - "area:frontend"
+body:
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current behavior
+      description: Describe what is happening now.
+      placeholder: Actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: Describe what should happen instead.
+      placeholder: Expected result.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Provide precise steps to reproduce the bug.
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Browser, device, branch, or runtime context.
+      placeholder: Chrome 136 on macOS, branch develop
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or logs
+      description: Add visual evidence, console logs, or supporting notes.
+      placeholder: Paste logs or links here.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area label
+      description: Choose the closest area label for this bug.
+      options:
+        - area:frontend
+        - area:content
+        - area:design
+        - area:infra
+        - area:ci
+        - area:docs
+    validations:
+      required: true
