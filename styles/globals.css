@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-heading: var(--font-space-grotesk);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --color-space-950: #050711;
+  --color-space-900: #0b0d17;
+  --color-space-800: #111827;
+
+  --color-orbit-500: #00aeef;
+  --color-orbit-600: #008fd1;
+
+  --color-solar-400: #ffc21a;
+  --color-solar-500: #f5a400;
+
+  --color-nebula-500: #e843b6;
+  --color-earth-500: #45c86a;
+
+  --color-moon-50: #ffffff;
+  --color-moon-100: #f4f7fb;
+  --color-moon-300: #c8d2e0;
+  --color-moon-500: #8a97aa;
+
+  --radius-card: 1.5rem;
+  --radius-button: 999px;
+
+  --shadow-cosmic: 0 0 40px rgb(0 174 239 / 0.18);
+  --shadow-solar: 0 0 32px rgb(255 194 26 / 0.22);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-space-950);
+    color: var(--color-moon-50);
+    font-family: var(--font-body);
+  }
+
+  ::selection {
+    background: var(--color-solar-400);
+    color: var(--color-space-950);
+  }
+}
+
+@layer components {
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    z-index: 60;
+    transform: translateY(-200%);
+    border-radius: 999px;
+    background: var(--color-moon-50);
+    color: var(--color-space-950);
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+
+  .section-shell {
+    position: relative;
+    padding-block: 4rem;
+  }
+
+  @media (min-width: 768px) {
+    .section-shell {
+      padding-block: 6rem;
+    }
+  }
+
+  .eyebrow {
+    color: var(--color-solar-400);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .input-field {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    background: rgb(255 255 255 / 0.04);
+    color: var(--color-moon-50);
+    padding: 0.9rem 1rem;
+    outline: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .input-field::placeholder {
+    color: var(--color-moon-500);
+  }
+
+  .input-field:focus {
+    border-color: rgb(0 174 239 / 0.7);
+    box-shadow: 0 0 0 3px rgb(0 174 239 / 0.18);
+  }
+
+  .star-field {
+    background-image:
+      radial-gradient(circle at 10% 20%, rgb(255 255 255 / 0.35) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 70% 30%, rgb(255 255 255 / 0.28) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 30% 70%, rgb(255 255 255 / 0.24) 0 1px, transparent 1.2px),
+      radial-gradient(circle at 85% 80%, rgb(255 255 255 / 0.2) 0 1px, transparent 1.2px);
+    background-size: 18rem 18rem, 22rem 22rem, 16rem 16rem, 26rem 26rem;
+  }
+}
