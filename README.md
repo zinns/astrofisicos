@@ -25,3 +25,15 @@ Current Phase 1 validation commands:
 - `pnpm typecheck`
 - `pnpm test:run`
 - `pnpm validate`
+
+Current Phase 2 local gates:
+
+- `pnpm install` configures Git hooks through Husky
+- `pnpm validate` runs the local pre-commit checks with a structured summary
+- `pnpm validate:branch` checks the current branch against the naming policy
+- `pnpm validate:ci` runs the CI-oriented checks, including the production build
+- commit messages must follow conventional commits and end with a GitHub Issue ID like `(#3)`
+
+Current next step:
+
+- Phase 3: issue templates, PR templates, labels, and GitHub-side merge metadata rules

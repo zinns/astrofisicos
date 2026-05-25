@@ -32,8 +32,9 @@
 
 ### Repo and workflow
 
+- Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
 - Define PR templates and GitHub hygiene for future collaboration.
-- Decide whether we want local automations, CI automations, or both for verification tasks.
+- Decide whether we want CI automations only or both CI and repository automation for verification tasks.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.
 - Execute the repository workflow in phases documented in `docs/repository-workflow-strategy.md`.
 
