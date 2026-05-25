@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { BRANCH_NAME_PATTERN, validateBranchName } from "../../scripts/validate-branch-name.mjs";
+import {
+  BRANCH_NAME_PATTERN,
+  validateBranchName,
+} from "../../scripts/validate-branch-name.mjs";
 
 describe("validateBranchName", () => {
   it("accepts allowed working branch names", () => {
@@ -21,4 +24,3 @@ describe("validateBranchName", () => {
     expect(validateBranchName("random-branch").isValid).toBe(false);
   });
 });
-

@@ -60,4 +60,3 @@ if (isDirectExecution()) {
     process.exit(1);
   }
 }
-

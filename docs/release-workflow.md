@@ -24,15 +24,17 @@ For PRs to `develop`:
 
 - PR title must be conventional and issue-linked
 - PR body must include `Closes #123` or `Fixes #123`
-- PR must have approval and the `approved` label
+- PR must have the `approved` label
 
 For PRs to `release`:
 
 - PR title should be `chore(release): prepare release candidate (#<release-tracking-issue>)`
 - PR body must include `Release tracking: #<release-tracking-issue>` or `Refs #<release-tracking-issue>`
 - PR must include exactly one `release:*` label
+- automation and `flow:release` should be applied automatically
 
 For PRs to `main`:
 
 - PR title must be `Release 📦 vX.Y.Z`
 - PR body must reference the release-tracking issue
+- automation and `flow:main` should be applied automatically

@@ -51,7 +51,6 @@ jobs:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
-          PR_APPROVAL_COUNT: "0"
 
   issue-reference:
     name: Issue Reference
@@ -69,7 +68,6 @@ jobs:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
-          PR_APPROVAL_COUNT: "0"
 
   labels:
     name: Labels
@@ -87,41 +85,3 @@ jobs:
           PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
           PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
           PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
-          PR_APPROVAL_COUNT: "0"
-
-  approval:
-    name: Approval
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-      - id: approvals
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const reviews = await github.paginate(github.rest.pulls.listReviews, {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              per_page: 100,
-            });
-
-            const latestStateByUser = new Map();
-
-            for (const review of reviews) {
-              latestStateByUser.set(review.user.login, review.state);
-            }
-
-            const approvalCount = [...latestStateByUser.values()].filter((state) => state === "APPROVED").length;
-            core.setOutput("count", String(approvalCount));
-      - name: Validate approval state
-        run: node ./scripts/validate-pr.mjs --check approval
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_BODY: ${{ github.event.pull_request.body }}
-          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
-          PR_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          PR_LABELS: ${{ toJson(github.event.pull_request.labels) }}
-          PR_APPROVAL_COUNT: ${{ steps.approvals.outputs.count }}

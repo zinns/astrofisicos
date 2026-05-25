@@ -52,6 +52,11 @@ For PRs targeting `develop`:
 
 - require `approved`
 
+For automated PRs:
+
+- `approved` is not required
+- `automation` and the corresponding flow label should be applied automatically
+
 For `develop -> release` PRs:
 
 - require `automation`
@@ -62,3 +67,19 @@ For `release -> main` PRs:
 
 - require `automation`
 - require `flow:main`
+
+## Automatic labels
+
+`.github/workflows/pr-auto-label.yml` derives labels from:
+
+- PR title type and scope
+- PR base branch
+- PR head branch
+
+It is intended to apply:
+
+- `type:*`
+- some `area:*` labels when they can be inferred safely
+- `automation`
+- `flow:release`
+- `flow:main`

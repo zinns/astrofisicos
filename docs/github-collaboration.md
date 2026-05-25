@@ -33,6 +33,18 @@ Each template includes:
 
 This keeps the final history aligned with PR titles and with the commit policy.
 
+## Approval model
+
+For human-authored PRs targeting `develop`:
+
+- the PR must carry the `approved` label before merge
+
+For automated PRs:
+
+- reviewers are not required
+- the `approved` label is not required
+- automation and flow labels should be applied automatically
+
 ## Suggested commit titles
 
 For PRs to `develop`:
@@ -61,4 +73,5 @@ The repository uses `.github/workflows/pr-metadata.yml` to validate:
 - PR title
 - issue reference in the PR body
 - labels
-- approval requirements
+
+Automatic labels are applied by `.github/workflows/pr-auto-label.yml`.

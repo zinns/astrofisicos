@@ -25,4 +25,3 @@ for (const label of labels) {
     },
   );
 }
-

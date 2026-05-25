@@ -4,8 +4,8 @@ Closes #<issue-id>
 
 ## Approval
 
-- Required before merge: at least one GitHub approval
 - Required before merge: `approved` label
+- Automated PRs do not require reviewers or the `approved` label
 
 ## What changed
 

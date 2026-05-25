@@ -35,7 +35,8 @@ This is a strategy document, not the implementation itself.
 - All work branches start from `develop`
 - All merges happen through PRs
 - Squash merge only
-- PRs targeting `develop` require both review approval and an `approved` label before merge
+- PRs targeting `develop` require the `approved` label before merge
+- Automated PRs do not require reviewers
 
 Squash merge is recommended because it keeps the history readable and allows the PR title to become the final commit in the target branch. That matters for conventional commit enforcement and for the final release commit title.
 
@@ -99,7 +100,7 @@ The best default is:
 - create a working branch from `develop` using the issue ID in the branch name
 - use conventional commits that include the issue ID
 - open a PR from the working branch to `develop`
-- require review approval and the `approved` label before merge
+- require the `approved` label before merge
 - close the original issue automatically when the PR into `develop` merges
 
 ### Why this is the best option
@@ -279,7 +280,6 @@ Validation checklist:
 
 - branch name follows policy
 - commit messages follow policy
-- PR has at least one GitHub approval
 - PR has the `approved` label
 - `pnpm lint`
 - `pnpm lint:css`
@@ -485,7 +485,6 @@ Checks:
 - PR title guard
 - issue reference guard
 - required label guard
-- approval guard
 - `pnpm install --frozen-lockfile`
 - `pnpm validate:ci`
 
@@ -494,10 +493,10 @@ PR title guard should support two allowed patterns:
 - standard PRs to `develop` or `release`: `type(scope): summary (#123)`
 - automated PRs to `main`: `Release 📦 vX.Y.Z`
 
-Approval guard should require:
+Label guard should require:
 
-- at least one GitHub review approval on PRs to `develop`
-- the `approved` label on PRs to `develop`
+- the `approved` label on human-authored PRs to `develop`
+- automation and flow labels on generated release and main PRs
 
 `pnpm validate:ci` should include:
 
@@ -585,7 +584,7 @@ Repository settings should also set `develop` as the GitHub default branch.
 - required status checks
 - require branch to be up to date before merge
 - squash merge only
-- require at least one approval on PRs to `develop`
+- require the label-based approval process on PRs to `develop`
 
 ### Required status checks
 
@@ -859,6 +858,6 @@ Deliverables:
 - Running full lint, typecheck, tests, and build on every commit is strict and can slow development.
 - Running lint, CSS lint, typecheck, and tests on every commit is still strict and can slow development.
 - The requirement that every PR reference an issue is coherent for feature work but needs the release tracking issue for automation PRs.
-- The approved label should not replace real review approval; both should be required.
+- Approval is label-driven for manual `develop` PRs, while automated PRs skip reviewer requirements.
 - The requirement that only `main`, `release`, and `develop` deploy is not cleanly compatible with Vercel Hobby Git defaults.
 - A private repository under a GitHub organization cannot use Vercel Hobby Git deployments, so the current deployment plan has a hard blocker.
