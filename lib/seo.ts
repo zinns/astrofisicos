@@ -17,6 +17,7 @@ export function buildMetadata(input: MetadataInput = {}): Metadata {
   return {
     title,
     description,
+    metadataBase: new URL(siteConfig.url),
     alternates: {
       canonical,
     },
@@ -42,4 +43,3 @@ export function buildMetadata(input: MetadataInput = {}): Metadata {
     },
   };
 }
-
