@@ -1,0 +1,42 @@
+name: Release Tracking
+description: Track the scope and validation for a release candidate.
+title: "[Release]: "
+labels:
+  - "type:chore"
+  - "area:infra"
+body:
+  - type: input
+    id: target-version
+    attributes:
+      label: Target version
+      description: Planned semantic version for this release.
+      placeholder: v0.2.0
+    validations:
+      required: true
+  - type: textarea
+    id: included-changes
+    attributes:
+      label: Included changes
+      description: Summarize what is expected to ship.
+      placeholder: Features, fixes, or issues included in the release.
+    validations:
+      required: true
+  - type: textarea
+    id: validation-checklist
+    attributes:
+      label: Validation checklist
+      description: List the release-level checks that must pass.
+      placeholder: |
+        - PR metadata checks pass
+        - CI validation passes
+        - Release label is correct
+    validations:
+      required: true
+  - type: textarea
+    id: release-notes
+    attributes:
+      label: Release notes summary
+      description: Draft the summary that should reach the final release notes.
+      placeholder: Summary for stakeholders or GitHub Release notes.
+    validations:
+      required: true

@@ -33,6 +33,7 @@
 ### Repo and workflow
 
 - Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
+- Phase 3 GitHub collaboration artifacts now cover issue forms, PR templates, labels, metadata validation, and supporting docs.
 - Define PR templates and GitHub hygiene for future collaboration.
 - Decide whether we want CI automations only or both CI and repository automation for verification tasks.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.

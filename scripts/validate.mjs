@@ -97,7 +97,9 @@ function writeGithubSummary(results) {
     "",
     "| Check | Status |",
     "| --- | --- |",
-    ...results.map((result) => `| ${result.label} | ${result.passed ? "PASS" : "FAIL"} |`),
+    ...results.map(
+      (result) => `| ${result.label} | ${result.passed ? "PASS" : "FAIL"} |`,
+    ),
   ];
 
   fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${lines.join("\n")}\n`);
@@ -130,15 +132,22 @@ const passed = results.filter((result) => result.passed);
 console.log("");
 console.log(
   failed.length === 0
-    ? colorize("green", `Summary: ${passed.length}/${results.length} checks passed`)
-    : colorize("red", `Summary: ${passed.length} passed, ${failed.length} failed`),
+    ? colorize(
+        "green",
+        `Summary: ${passed.length}/${results.length} checks passed`,
+      )
+    : colorize(
+        "red",
+        `Summary: ${passed.length} passed, ${failed.length} failed`,
+      ),
 );
 
 if (failed.length > 0) {
-  console.log(colorize("yellow", "Action: fix the failing checks before retrying."));
+  console.log(
+    colorize("yellow", "Action: fix the failing checks before retrying."),
+  );
 }
 
 writeGithubSummary(results);
 
 process.exit(failed.length === 0 ? 0 : 1);
-
