@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.13.1",
   "scripts": {
+    "prepare": "husky",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -14,8 +15,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:watch": "vitest --watch",
-    "validate": "pnpm lint && pnpm lint:css && pnpm typecheck && pnpm test:run",
-    "validate:ci": "pnpm validate && pnpm build"
+    "validate": "node ./scripts/validate.mjs",
+    "validate:branch": "node ./scripts/validate-branch-name.mjs",
+    "validate:ci": "node ./scripts/validate.mjs --ci"
   },
   "dependencies": {
     "class-variance-authority": "0.7.1",
@@ -26,8 +28,10 @@
     "tailwind-merge": "3.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "4.3.0",
+    "@commitlint/cli": "21.0.1",
+    "@commitlint/config-conventional": "21.0.1",
     "@eslint/js": "10.0.1",
+    "@tailwindcss/postcss": "4.3.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
     "@types/node": "24.3.0",
@@ -35,6 +39,7 @@
     "@types/react-dom": "19.2.3",
     "eslint": "10.4.0",
     "globals": "17.6.0",
+    "husky": "9.1.7",
     "jsdom": "29.1.1",
     "postcss": "8.5.6",
     "prettier": "3.8.3",
