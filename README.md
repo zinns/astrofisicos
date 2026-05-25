@@ -37,4 +37,4 @@ Current Phase 2 local gates:
 
 Current next step:
 
-- Phase 4: CI validation, branch protection, and merge gating beyond metadata rules
+- Phase 5: release automation

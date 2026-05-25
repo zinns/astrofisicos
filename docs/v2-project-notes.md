@@ -26,16 +26,17 @@
 
 ### Engineering quality
 
-- Add the real linting setup, including ESLint configuration and formatting conventions.
-- Install dependencies and run the first validation pass for type-checking, linting, build, and tests.
-- Add Vitest + React Testing Library coverage for navbar, homepage sections, cards, and footer.
+- Keep expanding Vitest + React Testing Library coverage for navbar, homepage sections, cards, and footer.
+- Decide whether formatter checks should become part of the main validation path or stay opt-in.
+- Review whether additional accessibility or metadata checks should be included in CI.
 
 ### Repo and workflow
 
 - Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
 - Phase 3 GitHub collaboration artifacts now cover issue forms, PR templates, labels, metadata validation, and supporting docs.
-- Define PR templates and GitHub hygiene for future collaboration.
-- Decide whether we want CI automations only or both CI and repository automation for verification tasks.
+- Phase 4 CI validation now runs in GitHub with structured summaries.
+- The current GitHub plan still blocks branch protections and rulesets for this private repository, so required merge checks remain documented rather than enforceable.
+- Decide whether we want additional repository automation beyond validation and release flows.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.
 - Execute the repository workflow in phases documented in `docs/repository-workflow-strategy.md`.
 

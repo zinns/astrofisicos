@@ -63,3 +63,18 @@ Configured hooks:
 The pre-commit hook runs `pnpm validate`.
 
 The commit-msg hook runs `commitlint`.
+
+## GitHub validation
+
+Pull requests are validated in GitHub by:
+
+- `.github/workflows/pr-metadata.yml`
+- `.github/workflows/pr-auto-label.yml`
+- `.github/workflows/repository-validation.yml`
+
+The intended required checks are documented in `docs/merge-protection.md`.
+
+Current limitation:
+
+- the repository is private and the current GitHub plan does not allow branch protections or rulesets here yet
+- the workflows run and report status, but GitHub cannot mark them as mandatory merge checks until that blocker is removed
