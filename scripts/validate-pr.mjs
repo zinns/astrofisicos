@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
+import { derivePrLabels } from "./derive-pr-labels.mjs";
+
 const reset = "\u001b[0m";
 const colors = {
   green: "\u001b[32m",
@@ -66,6 +68,16 @@ function buildLabelMessage(failures) {
     : failures.join("\n");
 }
 
+function getEffectiveLabelNames({ title, baseRef, headRef, labels }) {
+  const effectiveLabels = new Set(parseLabelNames(labels));
+
+  for (const label of derivePrLabels({ title, baseRef, headRef })) {
+    effectiveLabels.add(label);
+  }
+
+  return [...effectiveLabels];
+}
+
 export function validatePrMetadata({
   title,
   body,
@@ -73,7 +85,12 @@ export function validatePrMetadata({
   headRef,
   labels = [],
 }) {
-  const labelNames = parseLabelNames(labels);
+  const labelNames = getEffectiveLabelNames({
+    title,
+    baseRef,
+    headRef,
+    labels,
+  });
   const normalizedBody = body ?? "";
   const isAutomationPr = labelNames.includes("automation");
   const checks = [];

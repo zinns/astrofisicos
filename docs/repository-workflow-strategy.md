@@ -40,6 +40,10 @@ This is a strategy document, not the implementation itself.
 
 Squash merge is recommended because it keeps the history readable and allows the PR title to become the final commit in the target branch. That matters for conventional commit enforcement and for the final release commit title.
 
+Automatic PR labels should be applied by workflow and also derived during PR
+metadata validation so the first GitHub check run does not fail because of
+workflow timing.
+
 ## Branching Model
 
 ### Permanent branches

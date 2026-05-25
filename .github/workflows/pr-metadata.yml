@@ -14,8 +14,6 @@ on:
       - labeled
       - unlabeled
       - ready_for_review
-      - review_requested
-      - review_request_removed
 
 permissions:
   contents: read

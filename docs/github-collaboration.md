@@ -75,3 +75,6 @@ The repository uses `.github/workflows/pr-metadata.yml` to validate:
 - labels
 
 Automatic labels are applied by `.github/workflows/pr-auto-label.yml`.
+Metadata validation derives the same deterministic labels during validation so
+the first PR run does not fail if GitHub evaluates metadata before labels are
+persisted on the pull request.

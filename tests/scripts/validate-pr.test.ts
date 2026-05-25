@@ -85,6 +85,28 @@ describe("validatePrMetadata", () => {
     expect(checks.find((check) => check.id === "labels")?.passed).toBe(false);
   });
 
+  it("uses derived labels when metadata arrives before auto-labeling", () => {
+    const checks = validatePrMetadata({
+      title: "chore(ci): add GitHub collaboration rules (#5)",
+      body: "Closes #5",
+      baseRef: "develop",
+      headRef: "chore/5-phase-3-github-collaboration",
+      labels: [],
+    });
+    const labelResult = checks.find((check) => check.id === "labels");
+
+    expect(labelResult?.passed).toBe(false);
+    expect(labelResult?.message).toContain(
+      'PRs targeting develop must include the "approved" label before merge.',
+    );
+    expect(labelResult?.message).not.toContain(
+      "PR must include one type:* label.",
+    );
+    expect(labelResult?.message).not.toContain(
+      "PR must include one area:* label.",
+    );
+  });
+
   it("accepts an automated develop PR without the approved label", () => {
     const checks = validatePrMetadata({
       title: "ci(workflow): sync generated metadata rules (#33)",
@@ -92,6 +114,18 @@ describe("validatePrMetadata", () => {
       baseRef: "develop",
       headRef: "ci/33-sync-workflow-rules",
       labels: ["type:ci", "area:ci", "automation"],
+    });
+
+    expect(checks.every((check) => check.passed)).toBe(true);
+  });
+
+  it("accepts an automated release to main PR before labels persist", () => {
+    const checks = validatePrMetadata({
+      title: "Release 📦 v0.2.0",
+      body: "Release tracking: #12",
+      baseRef: "main",
+      headRef: "release",
+      labels: [],
     });
 
     expect(checks.every((check) => check.passed)).toBe(true);
