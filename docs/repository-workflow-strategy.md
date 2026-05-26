@@ -856,6 +856,7 @@ Current implementation note:
 - semver selection is still intentionally manual through the `release:*` label on the release PR
 - the post-release workflow also opens a `main -> develop` sync PR so version metadata does not drift after a release lands
 - because protected branches are blocked on the current GitHub plan, the workflows provide the enforcement signal but GitHub still cannot mark the release-label requirement as a true branch rule
+- principal-branch conflict avoidance is now documented explicitly in `docs/principal-branch-policy.md` and reinforced in the PR templates
 
 ### Phase 6: Deployment decision
 

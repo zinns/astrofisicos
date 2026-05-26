@@ -12,6 +12,12 @@ Release tracking: #<release-tracking-issue>
 - [ ] Release validation is complete
 - [ ] Final release notes are ready
 
+## Principal branch safety
+
+- [ ] This is the only active `release -> main` PR for the current candidate
+- [ ] `release` contains only the intended release changes
+- [ ] After merge, the automated `main -> develop` sync PR must be allowed to open and merge before the next `develop -> release` merge
+
 ## Deployment expectations
 
 - Vercel production should build from `main` only once the hosting constraint is resolved
