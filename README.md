@@ -18,6 +18,7 @@ Legacy folders were removed after preserving the original logo asset in `public/
 Documentation index lives in `docs/README.md`.
 Project notes and open backlog live in `docs/v2-project-notes.md`.
 Repository workflow, CI, release, and Vercel strategy live in `docs/repository-workflow-strategy.md`.
+Deployment setup and branch-to-environment mapping live in `docs/deployment.md`.
 
 Current Phase 1 validation commands:
 
@@ -37,4 +38,6 @@ Current Phase 2 local gates:
 
 Current next step:
 
-- Phase 6: deployment decision
+- audit the existing Vercel project against the documented branch and environment settings
+- add the final production and preview domain mappings once the client-facing domains are ready
+- continue website implementation and content refinement
