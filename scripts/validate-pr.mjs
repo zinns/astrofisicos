@@ -93,6 +93,7 @@ export function validatePrMetadata({
   });
   const normalizedBody = body ?? "";
   const isAutomationPr = labelNames.includes("automation");
+  const isAutomatedDevelopSyncPr = baseRef === "develop" && headRef === "main";
   const checks = [];
 
   checks.push({
@@ -111,12 +112,14 @@ export function validatePrMetadata({
   checks.push({
     id: "issue-reference",
     label: "Issue reference",
-    passed:
-      baseRef === "develop"
+    passed: isAutomatedDevelopSyncPr
+      ? releaseIssueReferencePattern.test(normalizedBody)
+      : baseRef === "develop"
         ? developIssueReferencePattern.test(normalizedBody)
         : releaseIssueReferencePattern.test(normalizedBody),
-    message:
-      baseRef === "develop"
+    message: isAutomatedDevelopSyncPr
+      ? 'Automated main -> develop PRs must include "Release tracking: #123" or "Refs #123".'
+      : baseRef === "develop"
         ? 'PR body must include "Closes #123" or "Fixes #123".'
         : 'PR body must include "Release tracking: #123" or "Refs #123".',
   });

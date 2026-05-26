@@ -23,6 +23,13 @@ export function buildMainReleasePrBody(
   version: string,
 ): string;
 
+export function buildDevelopSyncPrTitle(issueNumber: number): string;
+
+export function buildDevelopSyncPrBody(
+  issueNumber: number,
+  version: string,
+): string;
+
 export function buildReleaseTag(version: string): string;
 
 export function buildReleaseIssueComment(version: string): string;

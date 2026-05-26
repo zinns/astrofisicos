@@ -17,7 +17,7 @@
 3. A human sets exactly one `release:*` label on that `develop -> release` PR before merging it.
 4. `.github/workflows/prepare-main-release-pr.yml` reads that label, bumps the version on `release`, and creates or updates the `release -> main` PR.
 5. The `release -> main` PR carries the final release commit title `Release 📦 vX.Y.Z`.
-6. `.github/workflows/post-main-release.yml` creates the Git tag and GitHub Release and closes the release-tracking issue after the `main` merge.
+6. `.github/workflows/post-main-release.yml` creates the Git tag and GitHub Release, closes the release-tracking issue, and creates or updates a `main -> develop` sync PR after the `main` merge.
 
 ## Metadata rules
 
@@ -89,3 +89,14 @@ Behavior:
 - creates or reuses the GitHub Release for `vX.Y.Z`
 - creates the tag if it does not already exist
 - comments on and closes the release-tracking issue
+- creates or updates an automated `main -> develop` PR so the released version metadata returns to `develop`
+
+## Why the develop sync PR exists
+
+The version bump is committed on `release` before the `release -> main` PR is
+opened. Without a follow-up sync back into `develop`, the next feature cycle can
+reintroduce the older version metadata and make the next `develop -> release`
+PR try to roll the version backward.
+
+The automated `main -> develop` PR prevents that drift while keeping the release
+history explicit.

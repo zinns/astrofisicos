@@ -3,6 +3,8 @@ import path from "node:path";
 
 import { createGitHubClient, getRepoContext } from "./github-api.mjs";
 import {
+  buildDevelopSyncPrBody,
+  buildDevelopSyncPrTitle,
   buildMainReleasePrBody,
   buildMainReleasePrTitle,
   buildReleaseIssueComment,
@@ -309,6 +311,58 @@ async function syncMainPr() {
   ]);
 }
 
+async function syncDevelopPr({ issueNumber, version }) {
+  const client = createGitHubClient();
+  const repoContext = getRepoContext();
+  const title = buildDevelopSyncPrTitle(issueNumber);
+  const body = buildDevelopSyncPrBody(issueNumber, version);
+  const existingPr = await findOpenPullRequest(client, repoContext, {
+    base: "develop",
+    head: "main",
+  });
+
+  if (existingPr) {
+    await client.patch(
+      `/repos/${repoContext.owner}/${repoContext.repo}/pulls/${existingPr.number}`,
+      { body, title },
+    );
+
+    await addLabels(client, repoContext, existingPr.number, [
+      "type:chore",
+      "area:infra",
+      "automation",
+    ]);
+
+    appendSummary("Develop Sync PR", [
+      `- Updated main -> develop PR #${existingPr.number}.`,
+      `- Synced released version \`v${version}\` back into develop metadata.`,
+    ]);
+
+    return;
+  }
+
+  const createdPr = await client.post(
+    `/repos/${repoContext.owner}/${repoContext.repo}/pulls`,
+    {
+      base: "develop",
+      body,
+      head: "main",
+      title,
+    },
+  );
+
+  await addLabels(client, repoContext, createdPr.number, [
+    "type:chore",
+    "area:infra",
+    "automation",
+  ]);
+
+  appendSummary("Develop Sync PR", [
+    `- Created main -> develop PR #${createdPr.number}.`,
+    `- Synced released version \`v${version}\` back into develop metadata.`,
+  ]);
+}
+
 async function finalizeMainRelease() {
   const client = createGitHubClient();
   const repoContext = getRepoContext();
@@ -355,6 +409,8 @@ async function finalizeMainRelease() {
       { state: "closed" },
     );
   }
+
+  await syncDevelopPr({ issueNumber: releaseIssueNumber, version });
 
   appendSummary("Finalize Main Release", [
     `- Finalized GitHub Release ${tagName}.`,

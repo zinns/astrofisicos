@@ -204,6 +204,40 @@ export function buildMainReleasePrBody(issueNumber, version) {
   ].join("\n");
 }
 
+export function buildDevelopSyncPrTitle(issueNumber) {
+  return `chore(release): sync main back to develop (#${issueNumber})`;
+}
+
+export function buildDevelopSyncPrBody(issueNumber, version) {
+  return [
+    "## Release tracking issue",
+    "",
+    `Refs #${issueNumber}`,
+    "",
+    "## Purpose",
+    "",
+    `- Sync released version \`v${normalizeVersion(version)}\` from \`main\` back into \`develop\`.`,
+    "- Keep version metadata aligned before the next release cycle starts.",
+    "",
+    "## Validation",
+    "",
+    "- [ ] PR metadata checks pass",
+    "- [ ] Repository validation passes",
+    "",
+    "## Merge strategy",
+    "",
+    "- Squash merge only",
+    "",
+    "## Suggested commit title",
+    "",
+    `\`${buildDevelopSyncPrTitle(issueNumber)}\``,
+    "",
+    "## Next steps",
+    "",
+    "- Merge this sync PR before the next `develop -> release` merge to avoid version drift.",
+  ].join("\n");
+}
+
 export function buildReleaseTag(version) {
   return `v${normalizeVersion(version)}`;
 }

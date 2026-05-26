@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildDevelopSyncPrBody,
+  buildDevelopSyncPrTitle,
   buildMainReleasePrBody,
   buildMainReleasePrTitle,
   buildReleaseIssueComment,
@@ -73,6 +75,10 @@ describe("release metadata builders", () => {
     expect(buildReleasePrBody(14)).toContain("Release tracking: #14");
     expect(buildMainReleasePrTitle("0.2.0")).toBe("Release 📦 v0.2.0");
     expect(buildMainReleasePrBody(14, "0.2.0")).toContain("`v0.2.0`");
+    expect(buildDevelopSyncPrTitle(14)).toBe(
+      "chore(release): sync main back to develop (#14)",
+    );
+    expect(buildDevelopSyncPrBody(14, "0.2.0")).toContain("Refs #14");
   });
 
   it("formats release tags and closing comments", () => {

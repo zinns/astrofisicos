@@ -35,7 +35,7 @@
 - Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
 - Phase 3 GitHub collaboration artifacts now cover issue forms, PR templates, labels, metadata validation, and supporting docs.
 - Phase 4 CI validation now runs in GitHub with structured summaries.
-- Phase 5 release automation now manages the `develop -> release` PR, prepares the `release -> main` PR, and finalizes tags and GitHub Releases after merge.
+- Phase 5 release automation now manages the `develop -> release` PR, prepares the `release -> main` PR, finalizes tags and GitHub Releases after merge, and syncs `main` back into `develop`.
 - The current GitHub plan still blocks branch protections and rulesets for this private repository, so required merge checks remain documented rather than enforceable.
 - Decide whether we want additional repository automation beyond validation and release flows.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.

@@ -58,6 +58,18 @@ describe("derivePrLabels", () => {
       ]),
     );
   });
+
+  it("adds automation labels for main to develop sync PRs", () => {
+    expect(
+      derivePrLabels({
+        title: "chore(release): sync main back to develop (#12)",
+        baseRef: "develop",
+        headRef: "main",
+      }),
+    ).toEqual(
+      expect.arrayContaining(["type:chore", "area:infra", "automation"]),
+    );
+  });
 });
 
 describe("validatePrMetadata", () => {
@@ -114,6 +126,18 @@ describe("validatePrMetadata", () => {
       baseRef: "develop",
       headRef: "ci/33-sync-workflow-rules",
       labels: ["type:ci", "area:ci", "automation"],
+    });
+
+    expect(checks.every((check) => check.passed)).toBe(true);
+  });
+
+  it("accepts an automated main to develop sync PR with a non-closing issue reference", () => {
+    const checks = validatePrMetadata({
+      title: "chore(release): sync main back to develop (#12)",
+      body: "Refs #12",
+      baseRef: "develop",
+      headRef: "main",
+      labels: ["type:chore", "area:infra", "automation"],
     });
 
     expect(checks.every((check) => check.passed)).toBe(true);
