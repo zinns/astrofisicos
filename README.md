@@ -38,5 +38,6 @@ Current Phase 2 local gates:
 
 Current next step:
 
-- connect the live Vercel project with the documented branch and environment settings
+- audit the existing Vercel project against the documented branch and environment settings
+- add the final production and preview domain mappings once the client-facing domains are ready
 - continue website implementation and content refinement

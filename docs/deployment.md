@@ -15,6 +15,9 @@ this project is:
 This keeps production aligned with the principal-branch policy while avoiding a
 large number of throwaway preview deployments.
 
+If the repository is already connected to a Vercel project, treat the setup
+checklist below as an audit checklist instead of a first-time setup flow.
+
 ## Branch and environment mapping
 
 | Git branch                                              | Vercel environment | Purpose                       | Expected domain behavior     |
@@ -70,7 +73,7 @@ The repository now carries the minimum deployment-related config:
 
 ## Vercel setup checklist
 
-1. Import `zinns/astrofisicos` into Vercel.
+1. Create or confirm the Vercel project for `zinns/astrofisicos`.
 2. Keep `main` as the Vercel Production Branch.
 3. Confirm the framework is detected as Next.js.
 4. Set the project Node.js version to a supported `20.x` release or newer.

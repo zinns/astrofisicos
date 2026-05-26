@@ -46,4 +46,4 @@
 - Phase 6 now defines a Git-based Vercel deployment strategy with branch allowlisting in `vercel.json` and explicit branch/environment mapping in `docs/deployment.md`.
 - Decide how contact submissions will be handled without introducing unnecessary risk or complexity.
 - Review CSP, metadata, robots, and analytics once content and domains are final.
-- Enable the live Vercel project using the documented `main` / `release` / `develop` setup.
+- Audit the live Vercel project against the documented `main` / `release` / `develop` setup and finish the domain and environment configuration.
