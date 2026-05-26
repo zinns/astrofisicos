@@ -13,10 +13,11 @@
 ## Flow
 
 1. Work lands in `develop` through issue-linked PRs.
-2. A release-tracking issue defines the release candidate.
-3. A PR from `develop` to `release` prepares the release candidate.
-4. The version label on the `develop -> release` PR determines the semantic version bump.
-5. A PR from `release` to `main` carries the final release commit title `Release 📦 vX.Y.Z`.
+2. `.github/workflows/sync-release-pr.yml` ensures there is an open `develop -> release` PR and an open release-tracking issue.
+3. A human sets exactly one `release:*` label on that `develop -> release` PR before merging it.
+4. `.github/workflows/prepare-main-release-pr.yml` reads that label, bumps the version on `release`, and creates or updates the `release -> main` PR.
+5. The `release -> main` PR carries the final release commit title `Release 📦 vX.Y.Z`.
+6. `.github/workflows/post-main-release.yml` creates the Git tag and GitHub Release, closes the release-tracking issue, and creates or updates a `main -> develop` sync PR after the `main` merge.
 
 ## Metadata rules
 
@@ -31,10 +32,71 @@ For PRs to `release`:
 - PR title should be `chore(release): prepare release candidate (#<release-tracking-issue>)`
 - PR body must include `Release tracking: #<release-tracking-issue>` or `Refs #<release-tracking-issue>`
 - PR must include exactly one `release:*` label
-- automation and `flow:release` should be applied automatically
+- `type:chore`, `area:infra`, `automation`, and `flow:release` are applied automatically
 
 For PRs to `main`:
 
 - PR title must be `Release 📦 vX.Y.Z`
 - PR body must reference the release-tracking issue
-- automation and `flow:main` should be applied automatically
+- `type:chore`, `area:infra`, `automation`, and `flow:main` are applied automatically
+
+## Implemented automation
+
+### Sync release PR
+
+Workflow:
+
+- `.github/workflows/sync-release-pr.yml`
+
+Behavior:
+
+- runs on every push to `develop`
+- reuses the most recent open release-tracking issue with a title starting `[Release]:`
+- creates one if none exists
+- ensures there is an open PR from `develop` to `release`
+- applies the automation labels for the release flow
+
+The workflow does not choose the semver label automatically. That remains a
+manual release decision.
+
+### Prepare main release PR
+
+Workflow:
+
+- `.github/workflows/prepare-main-release-pr.yml`
+
+Behavior:
+
+- runs when a PR into `release` is merged
+- fetches the merged PR live so reruns see current labels
+- reads the `release:*` label from that PR
+- bumps the version on `release`
+- creates an automated commit titled `Release 📦 vX.Y.Z`
+- creates or updates the `release -> main` PR
+
+The workflow skips if `release` already points at a `Release 📦 ...` commit, so
+reruns do not double-bump the version.
+
+### Finalize main release
+
+Workflow:
+
+- `.github/workflows/post-main-release.yml`
+
+Behavior:
+
+- runs when the `release -> main` PR is merged
+- creates or reuses the GitHub Release for `vX.Y.Z`
+- creates the tag if it does not already exist
+- comments on and closes the release-tracking issue
+- creates or updates an automated `main -> develop` PR so the released version metadata returns to `develop`
+
+## Why the develop sync PR exists
+
+The version bump is committed on `release` before the `release -> main` PR is
+opened. Without a follow-up sync back into `develop`, the next feature cycle can
+reintroduce the older version metadata and make the next `develop -> release`
+PR try to roll the version backward.
+
+The automated `main -> develop` PR prevents that drift while keeping the release
+history explicit.

@@ -74,5 +74,11 @@ export function derivePrLabels({ title, baseRef, headRef }) {
     labels.add("area:infra");
   }
 
+  if (baseRef === "develop" && headRef === "main") {
+    labels.add("automation");
+    labels.add("type:chore");
+    labels.add("area:infra");
+  }
+
   return [...labels].filter(Boolean);
 }

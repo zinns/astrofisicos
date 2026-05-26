@@ -37,4 +37,4 @@ Current Phase 2 local gates:
 
 Current next step:
 
-- Phase 5: release automation
+- Phase 6: deployment decision
