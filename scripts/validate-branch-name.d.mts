@@ -7,4 +7,3 @@ export function validateBranchName(branchName: string): {
   isValid: boolean;
   message: string;
 };
-

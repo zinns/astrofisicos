@@ -850,6 +850,12 @@ Deliverables:
 - release commit automation
 - Git tag and GitHub Release flow
 
+Current implementation note:
+
+- the release automation workflows now exist in the repository
+- semver selection is still intentionally manual through the `release:*` label on the release PR
+- because protected branches are blocked on the current GitHub plan, the workflows provide the enforcement signal but GitHub still cannot mark the release-label requirement as a true branch rule
+
 ### Phase 6: Deployment decision
 
 Goal:
