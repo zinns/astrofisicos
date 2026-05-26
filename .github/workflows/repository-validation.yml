@@ -1,0 +1,60 @@
+name: Repository Validation
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - release
+      - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
+  push:
+    branches:
+      - develop
+      - release
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  repository-validation:
+    name: Repository Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Write CI environment summary
+        run: |
+          {
+            echo "## CI Environment"
+            echo ""
+            echo "- Event: \`${GITHUB_EVENT_NAME}\`"
+            echo "- Ref: \`${GITHUB_REF_NAME}\`"
+            echo "- Node: \`$(node --version)\`"
+            echo "- pnpm: \`$(pnpm --version)\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Validate repository
+        run: pnpm validate:ci

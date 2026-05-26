@@ -830,6 +830,11 @@ Deliverables:
 - GitHub rulesets or branch protections
 - structured CI step summary
 
+Current implementation note:
+
+- the CI workflow and repository merge settings can be implemented now
+- GitHub branch protections and rulesets are blocked on the current plan for this private repository
+
 ### Phase 5: Release automation
 
 Goal:
