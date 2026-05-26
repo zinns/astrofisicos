@@ -1,0 +1,53 @@
+name: Chore or Infrastructure
+description: Track repository, workflow, tooling, or infrastructure work.
+title: "[Chore]: "
+labels:
+  - "type:chore"
+  - "area:infra"
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Explain why this chore or infrastructure change is needed.
+      placeholder: What gap or risk does this work address?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Describe the expected work and boundaries.
+      placeholder: Systems, files, or workflows involved.
+    validations:
+      required: true
+  - type: textarea
+    id: impacted-systems
+    attributes:
+      label: Affected systems
+      description: Call out the parts of the repo or platform that will be touched.
+      placeholder: GitHub workflows, Vercel config, linting, docs, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: rollout
+    attributes:
+      label: Rollout or rollback notes
+      description: Note any rollout plan, verification steps, or rollback path.
+      placeholder: How should this be introduced or reverted?
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area label
+      description: Choose the closest area label for this work.
+      options:
+        - area:infra
+        - area:ci
+        - area:docs
+        - area:frontend
+        - area:content
+        - area:design
+    validations:
+      required: true

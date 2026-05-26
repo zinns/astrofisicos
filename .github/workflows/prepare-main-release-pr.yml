@@ -1,0 +1,79 @@
+name: Prepare Main Release PR
+
+on:
+  pull_request_target:
+    branches:
+      - release
+    types:
+      - closed
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: prepare-main-release-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  prepare-main-release-pr:
+    name: Prepare Main Release PR
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check whether release commit already exists
+        id: release-head
+        run: |
+          HEAD_TITLE="$(git log -1 --pretty=%s)"
+          echo "head_title=${HEAD_TITLE}" >> "$GITHUB_OUTPUT"
+          if [[ "${HEAD_TITLE}" == Release\ 📦* ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Load release metadata
+        id: metadata
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SKIP_VERSION_BUMP: ${{ steps.release-head.outputs.skip }}
+        run: node ./scripts/release-automation.mjs prepare-main-metadata
+      - name: Bump release version
+        if: steps.release-head.outputs.skip != 'true'
+        run: |
+          npm pkg set version="${{ steps.metadata.outputs.next_version }}"
+          pnpm install --lockfile-only
+      - name: Commit release version
+        if: steps.release-head.outputs.skip != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json pnpm-lock.yaml
+
+          if git diff --cached --quiet; then
+            echo "No version changes to commit."
+          else
+            git commit -m "${{ steps.metadata.outputs.release_commit_title }}"
+            git push origin release
+          fi
+      - name: Sync release to main PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_VERSION: ${{ steps.metadata.outputs.next_version }}
+          RELEASE_ISSUE_NUMBER: ${{ steps.metadata.outputs.release_issue_number }}
+        run: node ./scripts/release-automation.mjs sync-main-pr

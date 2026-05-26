@@ -35,9 +35,14 @@ This is a strategy document, not the implementation itself.
 - All work branches start from `develop`
 - All merges happen through PRs
 - Squash merge only
-- PRs targeting `develop` require both review approval and an `approved` label before merge
+- PRs targeting `develop` require the `approved` label before merge
+- Automated PRs do not require reviewers
 
 Squash merge is recommended because it keeps the history readable and allows the PR title to become the final commit in the target branch. That matters for conventional commit enforcement and for the final release commit title.
+
+Automatic PR labels should be applied by workflow and also derived during PR
+metadata validation so the first GitHub check run does not fail because of
+workflow timing.
 
 ## Branching Model
 
@@ -99,7 +104,7 @@ The best default is:
 - create a working branch from `develop` using the issue ID in the branch name
 - use conventional commits that include the issue ID
 - open a PR from the working branch to `develop`
-- require review approval and the `approved` label before merge
+- require the `approved` label before merge
 - close the original issue automatically when the PR into `develop` merges
 
 ### Why this is the best option
@@ -279,7 +284,6 @@ Validation checklist:
 
 - branch name follows policy
 - commit messages follow policy
-- PR has at least one GitHub approval
 - PR has the `approved` label
 - `pnpm lint`
 - `pnpm lint:css`
@@ -485,7 +489,6 @@ Checks:
 - PR title guard
 - issue reference guard
 - required label guard
-- approval guard
 - `pnpm install --frozen-lockfile`
 - `pnpm validate:ci`
 
@@ -494,10 +497,10 @@ PR title guard should support two allowed patterns:
 - standard PRs to `develop` or `release`: `type(scope): summary (#123)`
 - automated PRs to `main`: `Release 📦 vX.Y.Z`
 
-Approval guard should require:
+Label guard should require:
 
-- at least one GitHub review approval on PRs to `develop`
-- the `approved` label on PRs to `develop`
+- the `approved` label on human-authored PRs to `develop`
+- automation and flow labels on generated release and main PRs
 
 `pnpm validate:ci` should include:
 
@@ -585,7 +588,7 @@ Repository settings should also set `develop` as the GitHub default branch.
 - required status checks
 - require branch to be up to date before merge
 - squash merge only
-- require at least one approval on PRs to `develop`
+- require the label-based approval process on PRs to `develop`
 
 ### Required status checks
 
@@ -650,73 +653,66 @@ Optional later:
 
 ## Vercel Strategy
 
-### What should happen
+### Final decision
 
-- Vercel should be connected directly to the repository if the hosting constraint allows it
-- GitHub Actions should not trigger deployments
-- `main` should be the Vercel production branch
-- `release` and `develop` should be treated as shared preview branches
-- any additional working branches would also produce preview deployments under Git integration
+As of May 26, 2026, the repository is public, so the earlier Hobby/private-repo
+blocker no longer applies. The deployment model for this project is now:
 
-### Important constraint verified against Vercel docs
+- Vercel connected directly to the repository
+- GitHub Actions never deploying to Vercel
+- `main` as the only production branch
+- `release` and `develop` as the only shared preview branches
+- working branches disabled for automatic Git deployments
 
-Vercel Git deployments create:
-
-- production deployments from the configured production branch
-- preview deployments for other branches by default
+### Verified current Vercel behavior
 
 Relevant docs:
 
 - [Deploying Git Repositories with Vercel](https://vercel.com/docs/git)
-- [Project settings and Ignored Build Step](https://vercel.com/docs/project-configuration/project-settings)
-- [Git settings](https://vercel.com/docs/project-configuration/git-settings)
+- [Git Configuration](https://vercel.com/docs/project-configuration/git-configuration)
+- [Environment Variables](https://vercel.com/docs/environment-variables)
+- [Assigning a Domain to a Git Branch](https://vercel.com/docs/domains/working-with-domains/assign-domain-to-a-git-branch)
 
-### Strategy implication
+Those docs confirm:
 
-The earlier requirement "only deploy `main`, `release`, and `develop`" conflicts with the default Vercel Git model on Hobby:
+- Vercel creates production deployments from the configured production branch
+- non-production branches are preview branches by default
+- `git.deploymentEnabled` can disable or allow deployments per branch pattern
+- preview environment variables can apply to all preview branches or to
+  specific branches
+- custom domains can be assigned directly to a preview branch
 
-- by default, every non-production branch is a preview branch
-- the Ignored Build Step can cancel builds, but canceled builds still count against deployment quotas
+### Branch and environment mapping
 
-That means Ignored Build Step is not a clean allowlist solution for Hobby. Since preview deployments can still help testing, the better branch policy is:
+- `main` -> Production
+- `release` -> Preview
+- `develop` -> Preview
+- working branches -> no automatic Git deployment
 
-- `main` is production
-- every other branch is an acceptable preview branch
-- the team relies mainly on `develop` and `release` as shared preview environments
+The branch allowlist is implemented in `vercel.json`:
 
-### Recommended options
+```json
+{
+  "git": {
+    "deploymentEnabled": {
+      "*": false,
+      "develop": true,
+      "release": true,
+      "main": true
+    }
+  }
+}
+```
 
-Option A, recommended if the deployment constraint is flexible:
+### Operational rules
 
-- accept that feature branches may receive preview deployments
-- use `main` as production
-- attach stable preview domains to `release` and `develop`
-- treat those two as the only shared environments the team relies on
-
-Option B, required if the constraint is strict:
-
-- do not rely on Vercel Hobby Git integration for branch allowlisting
-- either upgrade the Vercel plan or change the deployment model
-
-### Additional Hobby limitation
-
-If the repository is private and belongs to a GitHub organization, Vercel Hobby Git deployment is not supported. In that case, the repository must be public or the Vercel project must move to Pro.
-
-Because the current repository is under the `zinns` organization namespace and will remain private, this is a present blocker, not a hypothetical one.
-
-Under the current stated constraints:
-
-- private GitHub organization repository
-- Vercel Hobby account
-- no account upgrade
-
-the repository cannot be connected to Vercel through the normal Git integration flow.
-
-That means one of these project decisions will eventually need to change:
-
-- make the repository public
-- upgrade the Vercel account to Pro
-- abandon Git-based Vercel connection and use another deployment model
+- Production deployments come only from `release -> main`
+- GitHub Actions validate code and metadata, but do not deploy
+- normal preview validation happens on `develop` and `release`
+- if a feature branch preview becomes necessary later, the allowlist must be
+  changed in a dedicated PR
+- if the repository becomes private again while remaining on Hobby, the Git
+  integration assumption must be re-checked
 
 ### Recommended Vercel settings
 
@@ -724,6 +720,10 @@ That means one of these project decisions will eventually need to change:
 - preview branch domains:
   - `develop` -> shared development preview domain
   - `release` -> shared release preview domain
+- environment variables:
+  - `Development` for local work
+  - `Preview` for `develop` and `release`
+  - `Production` for `main`
 - enable verified commits if the team wants an extra deployment safeguard
 - keep deployments managed by Vercel only
 
@@ -736,21 +736,25 @@ That means one of these project decisions will eventually need to change:
     chore-infra.yml
     feature-task.yml
     release-tracking.yml
+    config.yml
   PULL_REQUEST_TEMPLATE/
     develop.md
     release.md
     main-release.md
   workflows/
-    pr-validate.yml
+    pr-auto-label.yml
+    pr-metadata.yml
+    repository-validation.yml
     sync-release-pr.yml
     prepare-main-release-pr.yml
     post-main-release.yml
+  labels.json
 commitlint.config.cjs
 .husky/
   pre-commit
   commit-msg
-.stylelintrc.cjs
-.eslint.config.js
+stylelint.config.mjs
+eslint.config.mjs
 scripts/
   validate.mjs
   validate-branch-name.mjs
@@ -768,7 +772,7 @@ scripts/
 7. Add branch protections and required labels.
 8. Add release PR automation.
 9. Add main release automation.
-10. Connect Vercel only after the private-org Hobby blocker is resolved.
+10. Connect Vercel with the documented branch allowlist and environment mapping.
 
 ## Phased Rollout
 
@@ -827,6 +831,12 @@ Deliverables:
 - GitHub rulesets or branch protections
 - structured CI step summary
 
+Current implementation note:
+
+- the CI workflow and repository merge settings already exist in the repository
+- the earlier private-repo blocker is gone because the repository is public
+- branch protections and rulesets can now be applied as a live repository hardening step
+
 ### Phase 5: Release automation
 
 Goal:
@@ -842,11 +852,19 @@ Deliverables:
 - release commit automation
 - Git tag and GitHub Release flow
 
+Current implementation note:
+
+- the release automation workflows now exist in the repository
+- semver selection is still intentionally manual through the `release:*` label on the release PR
+- the post-release workflow also opens a `main -> develop` sync PR so version metadata does not drift after a release lands
+- until branch protections are applied live, the workflows provide the enforcement signal but GitHub still cannot make the release-label requirement mandatory at merge time
+- principal-branch conflict avoidance is now documented explicitly in `docs/principal-branch-policy.md` and reinforced in the PR templates
+
 ### Phase 6: Deployment decision
 
 Goal:
 
-- resolve the Vercel hosting blocker and connect deployment safely
+- finalize the Vercel deployment model and connect deployment safely
 
 Deliverables:
 
@@ -854,11 +872,17 @@ Deliverables:
 - environment mapping
 - deployment documentation
 
+Current implementation note:
+
+- the repository now carries `vercel.json` with a branch deployment allowlist
+- deployment guidance is documented in `docs/deployment.md`
+- the old private-repo Hobby blocker no longer applies because the repository is public
+
 ## Risks and Notes
 
 - Running full lint, typecheck, tests, and build on every commit is strict and can slow development.
 - Running lint, CSS lint, typecheck, and tests on every commit is still strict and can slow development.
 - The requirement that every PR reference an issue is coherent for feature work but needs the release tracking issue for automation PRs.
-- The approved label should not replace real review approval; both should be required.
-- The requirement that only `main`, `release`, and `develop` deploy is not cleanly compatible with Vercel Hobby Git defaults.
-- A private repository under a GitHub organization cannot use Vercel Hobby Git deployments, so the current deployment plan has a hard blocker.
+- Approval is label-driven for manual `develop` PRs, while automated PRs skip reviewer requirements.
+- The current Vercel deployment design deliberately disables feature-branch Git deployments, so preview validation is centered on `develop` and `release`.
+- If the repository becomes private again while staying on Hobby, the Vercel Git integration decision must be revisited.
