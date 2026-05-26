@@ -21,6 +21,12 @@ Closes #<issue-id>
 - [ ] Commit messages follow policy
 - [ ] `pnpm validate:ci`
 
+## Principal branch safety
+
+- [ ] This PR targets `develop`, not `release` or `main`
+- [ ] If this PR changes version or release metadata, it does so through the documented principal-branch sync flow
+- [ ] No open production sync (`main -> develop`) PR is being bypassed by this change
+
 ## Merge strategy
 
 - Squash merge only

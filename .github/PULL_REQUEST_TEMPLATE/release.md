@@ -12,6 +12,13 @@ Release tracking: #<release-tracking-issue>
 - [ ] `pnpm validate:ci`
 - [ ] Release notes are ready
 
+## Principal branch safety
+
+- [ ] This is the only active `develop -> release` PR for the current candidate
+- [ ] No open `main -> develop` sync PR remains unmerged
+- [ ] `release` contains only stabilization work and release-approved fixes
+- [ ] No feature work was added directly to `release`
+
 ## Version label
 
 - Required before merge: exactly one of `release:patch`, `release:minor`, or `release:major`
