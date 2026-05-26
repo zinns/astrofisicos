@@ -40,6 +40,14 @@ For PRs to `main`:
 - PR body must reference the release-tracking issue
 - `type:chore`, `area:infra`, `automation`, and `flow:main` are applied automatically
 
+## Principal branch safety rules
+
+- only one `develop -> release` PR may be active at a time
+- only one `release -> main` PR may be active at a time
+- after a production release, the generated `main -> develop` sync PR must merge before the next `develop -> release` PR merges
+- `release` accepts only stabilization work, not new feature work
+- if a permanent-branch PR shows conflicts, restore the missing sync step instead of bypassing the branch policy
+
 ## Implemented automation
 
 ### Sync release PR
@@ -100,3 +108,5 @@ PR try to roll the version backward.
 
 The automated `main -> develop` PR prevents that drift while keeping the release
 history explicit.
+
+See `docs/principal-branch-policy.md` for the full permanent-branch rules.

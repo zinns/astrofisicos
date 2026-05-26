@@ -78,3 +78,15 @@ Current limitation:
 
 - the repository is private and the current GitHub plan does not allow branch protections or rulesets here yet
 - the workflows run and report status, but GitHub cannot mark them as mandatory merge checks until that blocker is removed
+
+## Principal branch rules
+
+Read `docs/principal-branch-policy.md` before opening or merging any PR that
+targets `develop`, `release`, or `main`.
+
+The short version:
+
+- working branches merge only into `develop`
+- releases move only through `develop -> release -> main`
+- after a production release, `main` must sync back into `develop`
+- if one of those sync steps is missing, fix the missing sync step before trying to resolve branch conflicts by hand
