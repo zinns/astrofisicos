@@ -39,6 +39,7 @@ At any given time:
 - there should be only one active `develop -> release` PR
 - there should be only one active `release -> main` PR
 - after a production release, the generated `main -> develop` sync PR must be merged before the next `develop -> release` PR is merged
+- while that sync PR is open, no other PR targeting `develop` should proceed
 
 This is the main rule that prevents version drift and branch conflicts.
 
@@ -81,6 +82,7 @@ After merging `release -> main`:
 
 - automation must create or update the `main -> develop` sync PR
 - that sync PR must merge before the next release candidate is merged from `develop`
+- other PRs targeting `develop` should remain blocked until the sync PR is merged
 
 ## Hotfix rule
 

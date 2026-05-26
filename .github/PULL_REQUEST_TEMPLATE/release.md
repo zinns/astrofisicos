@@ -33,4 +33,5 @@ Release tracking: #<release-tracking-issue>
 
 ## Next steps
 
-- Note anything that must happen before the `release -> main` PR is prepared.
+- After merge, automation will bump the version on `release` and create or update the `release -> main` PR.
+- Note any release-only fixes or checks that must happen before the automated `release -> main` PR is merged.

@@ -51,6 +51,7 @@ PRs targeting `release` must include exactly one release label.
 For PRs targeting `develop`:
 
 - require `approved`
+- require the `Develop Sync Gate` check to pass
 
 For automated PRs:
 

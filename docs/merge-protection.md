@@ -20,6 +20,10 @@ PR metadata checks:
 - `Issue Reference`
 - `Labels`
 
+Additional `develop`-only metadata check:
+
+- `Develop Sync Gate`
+
 Repository validation check:
 
 - `Repository Validation`
@@ -30,13 +34,17 @@ job summary.
 
 ## Intended required merge checks
 
-The required status checks for `develop`, `release`, and `main` should be:
+The required status checks common to `develop`, `release`, and `main` should be:
 
 - `Branch Name`
 - `PR Title`
 - `Issue Reference`
 - `Labels`
 - `Repository Validation`
+
+For `develop`, add:
+
+- `Develop Sync Gate`
 
 ## Live repository merge settings
 

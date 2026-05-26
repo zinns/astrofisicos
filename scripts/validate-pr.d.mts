@@ -6,6 +6,7 @@ export function validatePrMetadata(input: {
   baseRef: string;
   headRef: string;
   labels?: string | unknown[];
+  openDevelopSyncPrNumber?: number | null;
 }): Array<{
   id: string;
   label: string;

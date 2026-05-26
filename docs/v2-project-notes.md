@@ -32,18 +32,20 @@
 
 ### Repo and workflow
 
-- Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
-- Phase 3 GitHub collaboration artifacts now cover issue forms, PR templates, labels, metadata validation, and supporting docs.
-- Phase 4 CI validation now runs in GitHub with structured summaries.
-- Phase 5 release automation now manages the `develop -> release` PR, prepares the `release -> main` PR, finalizes tags and GitHub Releases after merge, and syncs `main` back into `develop`.
+- Local developer gates are in place with Husky, commitlint, branch validation, and structured local validation.
+- GitHub collaboration artifacts cover issue forms, PR templates, labels, metadata validation, and supporting docs.
+- CI validation runs in GitHub with structured summaries.
+- Release automation now manages the `develop -> release` PR, prepares the `release -> main` PR, finalizes tags and GitHub Releases after merge, and syncs `main` back into `develop`.
+- While an open `main -> develop` sync PR exists, other PRs targeting `develop` should remain blocked until that sync PR merges.
 - The repository is now public, so the earlier branch-protection and Vercel Hobby blockers caused by private-repo limits no longer apply. Live protections still need a follow-up rollout.
 - Decide whether we want additional repository automation beyond validation and release flows.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.
-- Execute the repository workflow in phases documented in `docs/repository-workflow-strategy.md`.
+- Keep the live workflow docs aligned with the implemented automation and branch rules.
 
 ### Infra, security, and deployment
 
 - Phase 6 now defines a Git-based Vercel deployment strategy with branch allowlisting in `vercel.json` and explicit branch/environment mapping in `docs/deployment.md`.
+- The repository runtime baseline is now pinned to Node.js `24.16.0` LTS in `.nvmrc`.
 - Decide how contact submissions will be handled without introducing unnecessary risk or complexity.
 - Review CSP, metadata, robots, and analytics once content and domains are final.
 - Audit the live Vercel project against the documented `main` / `release` / `develop` setup and finish the domain and environment configuration.

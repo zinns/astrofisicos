@@ -32,4 +32,5 @@ Release tracking: #<release-tracking-issue>
 
 ## Next steps
 
-- Note the tag, release notes, and post-merge actions expected after merge.
+- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the `main -> develop` sync PR.
+- That generated sync PR must merge before any other PR targeting `develop` proceeds.

@@ -4,7 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.13.1",
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=24.16.0 <25"
   },
   "scripts": {
     "prepare": "husky",

@@ -68,15 +68,15 @@ The repository now carries the minimum deployment-related config:
 
 - `vercel.json` controls which branches can deploy through Git integration
 - `.gitignore` excludes `.vercel` and `.env*`
-- `package.json` declares `Node.js >=20.9.0`, matching the current Next.js
-  runtime requirement
+- `.nvmrc` pins the repository runtime to Node.js `24.16.0` LTS
+- `package.json` declares the matching supported Node.js range
 
 ## Vercel setup checklist
 
 1. Create or confirm the Vercel project for `zinns/astrofisicos`.
 2. Keep `main` as the Vercel Production Branch.
 3. Confirm the framework is detected as Next.js.
-4. Set the project Node.js version to a supported `20.x` release or newer.
+4. Set the project Node.js version to Node.js `24.16.0` LTS or the matching `24.x` line.
 5. Verify that branch deployments follow `vercel.json`:
    - `main` deploys to Production
    - `release` deploys to Preview

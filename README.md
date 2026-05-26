@@ -17,10 +17,17 @@ Legacy folders were removed after preserving the original logo asset in `public/
 
 Documentation index lives in `docs/README.md`.
 Project notes and open backlog live in `docs/v2-project-notes.md`.
-Repository workflow, CI, release, and Vercel strategy live in `docs/repository-workflow-strategy.md`.
+Repository workflow and release policy live across `docs/contributing.md`,
+`docs/github-collaboration.md`, `docs/principal-branch-policy.md`,
+`docs/release-workflow.md`, and `docs/merge-protection.md`.
 Deployment setup and branch-to-environment mapping live in `docs/deployment.md`.
 
-Current Phase 1 validation commands:
+Runtime baseline:
+
+- `nvm use` reads `.nvmrc`
+- the pinned repository runtime is Node.js `24.16.0` LTS
+
+Validation commands:
 
 - `pnpm lint`
 - `pnpm lint:css`
@@ -28,13 +35,14 @@ Current Phase 1 validation commands:
 - `pnpm test:run`
 - `pnpm validate`
 
-Current Phase 2 local gates:
+Workflow baseline:
 
 - `pnpm install` configures Git hooks through Husky
 - `pnpm validate` runs the local pre-commit checks with a structured summary
 - `pnpm validate:branch` checks the current branch against the naming policy
 - `pnpm validate:ci` runs the CI-oriented checks, including the production build
 - commit messages must follow conventional commits and end with a GitHub Issue ID like `(#3)`
+- an open `main -> develop` sync PR blocks other PRs targeting `develop`
 
 Current next step:
 

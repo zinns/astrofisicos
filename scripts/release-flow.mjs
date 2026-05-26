@@ -162,7 +162,8 @@ export function buildReleasePrBody(issueNumber) {
     "",
     "## Next steps",
     "",
-    "- Note anything that must happen before the `release -> main` PR is prepared.",
+    "- After merge, automation will bump the version on `release` and create or update the `release -> main` PR.",
+    "- Note any release-only fixes or validation steps that must happen before the automated `release -> main` PR is merged.",
   ].join("\n");
 }
 
@@ -188,7 +189,7 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Deployment expectations",
     "",
-    "- Vercel production should build from `main` only once the hosting constraint is resolved",
+    "- This merge is expected to trigger the only production deployment path: `release -> main` and then Vercel building from `main`",
     "",
     "## Merge strategy",
     "",
@@ -200,7 +201,8 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Next steps",
     "",
-    "- Note the tag, release notes, and post-merge actions expected after merge.",
+    "- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the `main -> develop` sync PR.",
+    "- The generated `main -> develop` sync PR must merge before any other PR targeting `develop` proceeds.",
   ].join("\n");
 }
 
@@ -234,7 +236,8 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Next steps",
     "",
-    "- Merge this sync PR before the next `develop -> release` merge to avoid version drift.",
+    "- Merge this sync PR before any other PR targeting `develop` proceeds.",
+    "- After it merges, normal feature PRs to `develop` and the next `develop -> release` cycle may continue without version drift.",
   ].join("\n");
 }
 

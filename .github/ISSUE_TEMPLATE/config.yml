@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Repository Workflow Strategy
-    url: https://github.com/zinns/astrofisicos/blob/develop/docs/repository-workflow-strategy.md
-    about: Review the agreed workflow before opening process or release issues.
+  - name: Repository Docs Index
+    url: https://github.com/zinns/astrofisicos/blob/develop/docs/README.md
+    about: Review the repository guides before opening process, release, or infrastructure issues.
   - name: Collaboration Guide
     url: https://github.com/zinns/astrofisicos/blob/develop/docs/github-collaboration.md
     about: Check labels, issue lifecycle, PR expectations, and merge rules.
