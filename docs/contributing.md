@@ -76,8 +76,8 @@ The intended required checks are documented in `docs/merge-protection.md`.
 
 Current limitation:
 
-- the repository is private and the current GitHub plan does not allow branch protections or rulesets here yet
-- the workflows run and report status, but GitHub cannot mark them as mandatory merge checks until that blocker is removed
+- the workflows already run and report status
+- branch protections and rulesets are now possible because the repository is public, but they still need to be applied as a live repository hardening step
 
 ## Principal branch rules
 

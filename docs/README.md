@@ -3,6 +3,7 @@
 Important workflow and repository topics live here:
 
 - [Contributing Guide](./contributing.md)
+- [Deployment Guide](./deployment.md)
 - [GitHub Collaboration](./github-collaboration.md)
 - [CI And Merge Protection](./merge-protection.md)
 - [Principal Branch Policy](./principal-branch-policy.md)

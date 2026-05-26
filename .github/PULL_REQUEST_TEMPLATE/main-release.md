@@ -20,7 +20,7 @@ Release tracking: #<release-tracking-issue>
 
 ## Deployment expectations
 
-- Vercel production should build from `main` only once the hosting constraint is resolved
+- This merge is expected to trigger the only production deployment path: `release -> main` and then Vercel building from `main`
 
 ## Merge strategy
 

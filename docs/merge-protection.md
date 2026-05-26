@@ -2,8 +2,8 @@
 
 ## Current Phase 4 state
 
-Phase 4 adds the GitHub-side validation workflow and tightens the repository
-merge settings that are available on the current plan.
+Phase 4 added the GitHub-side validation workflows and tightened the merge
+settings that can be controlled at the repository level.
 
 Live workflow files:
 
@@ -11,7 +11,7 @@ Live workflow files:
 - `.github/workflows/pr-auto-label.yml`
 - `.github/workflows/repository-validation.yml`
 
-## Checks that now run in GitHub
+## Checks that run in GitHub
 
 PR metadata checks:
 
@@ -30,8 +30,7 @@ job summary.
 
 ## Intended required merge checks
 
-When the repository plan supports branch protection on this private repository,
-the required status checks should be:
+The required status checks for `develop`, `release`, and `main` should be:
 
 - `Branch Name`
 - `PR Title`
@@ -39,11 +38,9 @@ the required status checks should be:
 - `Labels`
 - `Repository Validation`
 
-These checks are intended for `develop`, `release`, and `main`.
-
 ## Live repository merge settings
 
-Phase 4 should keep the repository aligned with the workflow strategy:
+The repository should stay aligned with the workflow strategy:
 
 - squash merge enabled
 - merge commits disabled
@@ -51,30 +48,21 @@ Phase 4 should keep the repository aligned with the workflow strategy:
 - merged branches deleted automatically
 - squash merge commit message set to the PR title
 
-## Current GitHub blocker
+## Current repository state
 
-As of May 25, 2026, GitHub branch protections and repository rulesets are not
-available for this repository on the current plan because the repository is
-private.
+As of May 26, 2026, the repository is public. The earlier private-repository
+plan blocker no longer applies.
 
-This was confirmed live with `gh api` against:
+Current live API state:
 
-- `repos/zinns/astrofisicos/branches/develop/protection`
-- `repos/zinns/astrofisicos/rulesets`
+- `repos/zinns/astrofisicos/branches/develop/protection` returns `404`
+  `Branch not protected`
+- `repos/zinns/astrofisicos/rulesets` returns an empty array
 
-Both endpoints returned `403` with the message:
+That means the workflows are live, but GitHub branch protections or rulesets
+still need to be applied so the checks become mandatory at merge time.
 
-```txt
-Upgrade to GitHub Pro or make this repository public to enable this feature.
-```
-
-That means Phase 4 can implement the checks and repository merge settings, but
-it cannot make those checks truly required in GitHub until one of these happens:
-
-1. the repository is moved to a GitHub plan that supports protections for this private repo
-2. the repository becomes public
-
-## Recommended follow-up once the blocker is removed
+## Recommended live protection rollout
 
 Apply branch protections or rulesets to `develop`, `release`, and `main` with:
 
@@ -86,9 +74,9 @@ Apply branch protections or rulesets to `develop`, `release`, and `main` with:
 - linear history enabled
 - conversation resolution required
 
-For `develop`, keep approval label enforcement in workflow rather than requiring
-GitHub reviews, because the project deliberately uses label-based approval for
-human-authored PRs.
+For `develop`, keep approval enforcement in the `Labels` workflow check instead
+of relying on GitHub reviewer approval rules, because this project uses
+label-based approval for human-authored PRs.
 
 ## References
 

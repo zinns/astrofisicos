@@ -82,5 +82,5 @@ persisted on the pull request.
 Repository-wide code validation runs in
 `.github/workflows/repository-validation.yml`.
 
-The intended merge-protection model and the current GitHub plan blocker are
+The intended merge-protection model and the current rollout state are
 documented in `docs/merge-protection.md`.
