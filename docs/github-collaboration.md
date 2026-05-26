@@ -38,6 +38,7 @@ This keeps the final history aligned with PR titles and with the commit policy.
 For human-authored PRs targeting `develop`:
 
 - the PR must carry the `approved` label before merge
+- the PR must not bypass an open automated `main -> develop` sync PR
 
 For automated PRs:
 
@@ -73,6 +74,10 @@ The repository uses `.github/workflows/pr-metadata.yml` to validate:
 - PR title
 - issue reference in the PR body
 - labels
+
+For PRs targeting `develop`, it also validates:
+
+- develop sync gate
 
 Automatic labels are applied by `.github/workflows/pr-auto-label.yml`.
 Metadata validation derives the same deterministic labels during validation so

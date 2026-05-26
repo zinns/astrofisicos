@@ -37,4 +37,5 @@ Closes #<issue-id>
 
 ## Next steps
 
-- Call out anything intentionally deferred or any follow-up issue.
+- List the next implementation issue or PR expected after this merge.
+- If this work should be included in the next release candidate, call out any follow-up checks or release-only work before `develop -> release`.

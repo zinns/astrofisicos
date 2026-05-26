@@ -18,6 +18,7 @@
 4. `.github/workflows/prepare-main-release-pr.yml` reads that label, bumps the version on `release`, and creates or updates the `release -> main` PR.
 5. The `release -> main` PR carries the final release commit title `Release 📦 vX.Y.Z`.
 6. `.github/workflows/post-main-release.yml` creates the Git tag and GitHub Release, closes the release-tracking issue, and creates or updates a `main -> develop` sync PR after the `main` merge.
+7. While that `main -> develop` sync PR is open, other PRs targeting `develop` remain blocked.
 
 ## Metadata rules
 
@@ -26,6 +27,7 @@ For PRs to `develop`:
 - PR title must be conventional and issue-linked
 - PR body must include `Closes #123` or `Fixes #123`
 - PR must have the `approved` label
+- PR must not bypass an open `main -> develop` sync PR
 
 For PRs to `release`:
 
@@ -45,6 +47,7 @@ For PRs to `main`:
 - only one `develop -> release` PR may be active at a time
 - only one `release -> main` PR may be active at a time
 - after a production release, the generated `main -> develop` sync PR must merge before the next `develop -> release` PR merges
+- while that sync PR is open, other PRs to `develop` must remain blocked
 - `release` accepts only stabilization work, not new feature work
 - if a permanent-branch PR shows conflicts, restore the missing sync step instead of bypassing the branch policy
 
@@ -98,6 +101,7 @@ Behavior:
 - creates the tag if it does not already exist
 - comments on and closes the release-tracking issue
 - creates or updates an automated `main -> develop` PR so the released version metadata returns to `develop`
+- can be rerun manually with `workflow_dispatch` by supplying the merged `release -> main` PR number if recovery is needed
 
 ## Why the develop sync PR exists
 
@@ -108,5 +112,8 @@ PR try to roll the version backward.
 
 The automated `main -> develop` PR prevents that drift while keeping the release
 history explicit.
+
+It also acts as a hard workflow gate: until that sync PR merges, other PRs to
+`develop` should remain blocked.
 
 See `docs/principal-branch-policy.md` for the full permanent-branch rules.

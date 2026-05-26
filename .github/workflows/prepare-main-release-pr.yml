@@ -35,7 +35,7 @@ jobs:
           run_install: false
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
       - name: Check whether release commit already exists
         id: release-head
         run: |

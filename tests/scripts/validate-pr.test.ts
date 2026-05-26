@@ -85,6 +85,22 @@ describe("validatePrMetadata", () => {
     expect(checks.every((check) => check.passed)).toBe(true);
   });
 
+  it("blocks non-sync PRs to develop while the main sync PR is open", () => {
+    const checks = validatePrMetadata({
+      title: "feat(content): add latest content hub entries (#18)",
+      body: "Closes #18",
+      baseRef: "develop",
+      headRef: "feat/18-content-hub-update",
+      labels: ["type:feature", "area:content", "approved"],
+      openDevelopSyncPrNumber: 21,
+    });
+
+    const syncGate = checks.find((check) => check.id === "develop-sync-gate");
+
+    expect(syncGate?.passed).toBe(false);
+    expect(syncGate?.message).toContain("sync PR #21");
+  });
+
   it("rejects a develop PR without the approved label", () => {
     const checks = validatePrMetadata({
       title: "chore(tooling): add local developer gates (#3)",
@@ -138,6 +154,7 @@ describe("validatePrMetadata", () => {
       baseRef: "develop",
       headRef: "main",
       labels: ["type:chore", "area:infra", "automation"],
+      openDevelopSyncPrNumber: 34,
     });
 
     expect(checks.every((check) => check.passed)).toBe(true);
