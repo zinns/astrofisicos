@@ -1,0 +1,95 @@
+[
+  { "name": "type:feature", "color": "078AF5", "description": "Feature work" },
+  { "name": "type:fix", "color": "D73A49", "description": "Bug fix work" },
+  {
+    "name": "type:docs",
+    "color": "0E8A16",
+    "description": "Documentation work"
+  },
+  {
+    "name": "type:chore",
+    "color": "6F42C1",
+    "description": "Chore or repository maintenance work"
+  },
+  {
+    "name": "type:refactor",
+    "color": "F9D0C4",
+    "description": "Refactoring work"
+  },
+  { "name": "type:test", "color": "FBCA04", "description": "Testing work" },
+  {
+    "name": "type:ci",
+    "color": "1D76DB",
+    "description": "CI or workflow work"
+  },
+  {
+    "name": "area:frontend",
+    "color": "5319E7",
+    "description": "Frontend implementation"
+  },
+  {
+    "name": "area:content",
+    "color": "C2E0C6",
+    "description": "Content architecture or copy"
+  },
+  {
+    "name": "area:design",
+    "color": "F7C6C7",
+    "description": "Design system or visual work"
+  },
+  {
+    "name": "area:infra",
+    "color": "0052CC",
+    "description": "Infrastructure, repository, or release work"
+  },
+  {
+    "name": "area:ci",
+    "color": "0B7285",
+    "description": "Continuous integration or automation work"
+  },
+  {
+    "name": "area:docs",
+    "color": "BFDADC",
+    "description": "Documentation area"
+  },
+  {
+    "name": "approved",
+    "color": "2DA44E",
+    "description": "PR is approved for merge after review"
+  },
+  {
+    "name": "released",
+    "color": "8250DF",
+    "description": "Implementation has shipped in a release"
+  },
+  {
+    "name": "automation",
+    "color": "57606A",
+    "description": "Created or managed by automation"
+  },
+  {
+    "name": "flow:release",
+    "color": "FBCA04",
+    "description": "Release flow metadata"
+  },
+  {
+    "name": "flow:main",
+    "color": "D4C5F9",
+    "description": "Main release flow metadata"
+  },
+  {
+    "name": "release:patch",
+    "color": "0E8A16",
+    "description": "Patch release increment"
+  },
+  {
+    "name": "release:minor",
+    "color": "FBCA04",
+    "description": "Minor release increment"
+  },
+  {
+    "name": "release:major",
+    "color": "B60205",
+    "description": "Major release increment"
+  }
+]

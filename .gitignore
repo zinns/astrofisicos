@@ -2,6 +2,9 @@ node_modules
 .next
 coverage
 dist
+.vercel
+.env*
+!.env.example
 .DS_Store
 *.log
-
+*.tsbuildinfo

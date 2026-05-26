@@ -2,6 +2,8 @@
 
 Root-level Next.js skeleton for the redesigned Astrofisicos en Accion website.
 
+Package manager: `pnpm`
+
 Current focus:
 
 - brief-aligned information architecture
@@ -13,5 +15,29 @@ Current focus:
 
 Legacy folders were removed after preserving the original logo asset in `public/logo/`.
 
+Documentation index lives in `docs/README.md`.
 Project notes and open backlog live in `docs/v2-project-notes.md`.
 Repository workflow, CI, release, and Vercel strategy live in `docs/repository-workflow-strategy.md`.
+Deployment setup and branch-to-environment mapping live in `docs/deployment.md`.
+
+Current Phase 1 validation commands:
+
+- `pnpm lint`
+- `pnpm lint:css`
+- `pnpm typecheck`
+- `pnpm test:run`
+- `pnpm validate`
+
+Current Phase 2 local gates:
+
+- `pnpm install` configures Git hooks through Husky
+- `pnpm validate` runs the local pre-commit checks with a structured summary
+- `pnpm validate:branch` checks the current branch against the naming policy
+- `pnpm validate:ci` runs the CI-oriented checks, including the production build
+- commit messages must follow conventional commits and end with a GitHub Issue ID like `(#3)`
+
+Current next step:
+
+- audit the existing Vercel project against the documented branch and environment settings
+- add the final production and preview domain mappings once the client-facing domains are ready
+- continue website implementation and content refinement

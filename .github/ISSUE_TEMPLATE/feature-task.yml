@@ -1,0 +1,55 @@
+name: Feature Task
+description: Plan a product or implementation feature tied to a GitHub Issue workflow.
+title: "[Feature]: "
+labels:
+  - "type:feature"
+  - "area:frontend"
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: Explain what needs to change and why it matters.
+      placeholder: Describe the user or product need.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected outcome
+      description: Define the target result once the work is complete.
+      placeholder: Clear expected end state.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance criteria
+      description: List the conditions that make this work complete.
+      placeholder: |
+        - Criterion 1
+        - Criterion 2
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Design, content, or technical references
+      description: Link relevant briefs, designs, docs, or prior issues.
+      placeholder: Links or file references.
+    validations:
+      required: false
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area label
+      description: Choose the closest area label for this work.
+      options:
+        - area:frontend
+        - area:content
+        - area:design
+        - area:infra
+        - area:ci
+        - area:docs
+    validations:
+      required: true

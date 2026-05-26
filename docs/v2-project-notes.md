@@ -26,20 +26,24 @@
 
 ### Engineering quality
 
-- Add the real linting setup, including ESLint configuration and formatting conventions.
-- Install dependencies and run the first validation pass for type-checking, linting, build, and tests.
-- Add Vitest + React Testing Library coverage for navbar, homepage sections, cards, and footer.
+- Keep expanding Vitest + React Testing Library coverage for navbar, homepage sections, cards, and footer.
+- Decide whether formatter checks should become part of the main validation path or stay opt-in.
+- Review whether additional accessibility or metadata checks should be included in CI.
 
 ### Repo and workflow
 
-- Define PR templates and GitHub hygiene for future collaboration.
-- Decide whether we want local automations, CI automations, or both for verification tasks.
+- Phase 2 local developer gates are now in place with Husky, commitlint, branch validation, and structured local validation.
+- Phase 3 GitHub collaboration artifacts now cover issue forms, PR templates, labels, metadata validation, and supporting docs.
+- Phase 4 CI validation now runs in GitHub with structured summaries.
+- Phase 5 release automation now manages the `develop -> release` PR, prepares the `release -> main` PR, finalizes tags and GitHub Releases after merge, and syncs `main` back into `develop`.
+- The repository is now public, so the earlier branch-protection and Vercel Hobby blockers caused by private-repo limits no longer apply. Live protections still need a follow-up rollout.
+- Decide whether we want additional repository automation beyond validation and release flows.
 - Expand root documentation with setup, architecture, design tokens, and deployment notes.
 - Execute the repository workflow in phases documented in `docs/repository-workflow-strategy.md`.
 
 ### Infra, security, and deployment
 
-- Document the initial deployment target and environment strategy.
+- Phase 6 now defines a Git-based Vercel deployment strategy with branch allowlisting in `vercel.json` and explicit branch/environment mapping in `docs/deployment.md`.
 - Decide how contact submissions will be handled without introducing unnecessary risk or complexity.
 - Review CSP, metadata, robots, and analytics once content and domains are final.
-- Resolve the Vercel blocker created by the current combination of private GitHub organization repository and Hobby account before planning Git-based deployment.
+- Audit the live Vercel project against the documented `main` / `release` / `develop` setup and finish the domain and environment configuration.
