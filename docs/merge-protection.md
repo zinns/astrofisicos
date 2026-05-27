@@ -1,9 +1,10 @@
 # CI And Merge Protection
 
-## Current Phase 4 state
+## Current state
 
-Phase 4 added the GitHub-side validation workflows and tightened the merge
-settings that can be controlled at the repository level.
+The GitHub-side validation workflows are live. What still needs live GitHub
+administration is turning those checks into mandatory branch protections or
+rulesets.
 
 Live workflow files:
 
@@ -53,7 +54,7 @@ The repository should stay aligned with the workflow strategy:
 - squash merge enabled
 - merge commits disabled
 - rebase merges disabled
-- merged branches deleted automatically
+- permanent branches must not auto-delete after merge
 - squash merge commit message set to the PR title
 
 ## Current repository state
@@ -81,6 +82,11 @@ Apply branch protections or rulesets to `develop`, `release`, and `main` with:
 - branch deletion blocked
 - linear history enabled
 - conversation resolution required
+
+Permanent-branch note:
+
+- `develop`, `release`, and `main` must remain undeletable through repository
+  settings and protection rules
 
 For `develop`, keep approval enforcement in the `Labels` workflow check instead
 of relying on GitHub reviewer approval rules, because this project uses

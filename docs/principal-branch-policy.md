@@ -11,6 +11,11 @@ This repository uses three permanent branches:
 The policy below exists to prevent divergence and merge conflicts between those
 branches.
 
+Permanent-branch rule:
+
+- `develop`, `release`, and `main` are never disposable branches
+- GitHub auto-delete for merged branches must stay disabled
+
 ## Allowed pull request directions
 
 Only these branch movements are allowed:
@@ -57,12 +62,19 @@ Not allowed on `release`:
 - new feature work
 - unrelated refactors
 - manual version changes outside the release automation flow
+- leaving `release` deleted after a completed production merge
 
 If a release-only fix is required:
 
 1. branch from `release`
 2. open a PR back into `release`
 3. let the normal `release -> main` and `main -> develop` flow carry it forward
+
+If `release` is deleted accidentally:
+
+1. restore `release` from `main`
+2. confirm the restored branch points at the last production-ready release commit
+3. rerun or wait for `sync-release-pr` so the next `develop -> release` PR is recreated from a valid base
 
 ## Conflict prevention rules
 

@@ -3,8 +3,9 @@
 ## Local setup
 
 - Package manager: `pnpm`
-- Runtime: Node.js `24.16.0` LTS from `.nvmrc`
-- Run `nvm use` before `pnpm install` or `pnpm validate`
+- Runtime: latest active Node.js LTS from `.nvmrc` (`lts/*`)
+- As of May 27, 2026, `.nvmrc` resolves to Node.js `24.16.0`
+- Run `nvm install --lts && nvm use` before `pnpm install` or `pnpm validate`
 - Install dependencies with `pnpm install`
 - Installing dependencies also configures Husky hooks through the `prepare` script
 
@@ -95,4 +96,5 @@ The short version:
 - releases move only through `develop -> release -> main`
 - after a production release, `main` must sync back into `develop`
 - while that sync PR is open, other PRs to `develop` remain blocked
+- `release` is a permanent branch and must never be auto-deleted
 - if one of those sync steps is missing, fix the missing sync step before trying to resolve branch conflicts by hand
