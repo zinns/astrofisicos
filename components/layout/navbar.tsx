@@ -14,7 +14,7 @@ export function Navbar() {
         <Link className="flex items-center gap-3" href="/">
           <Image
             alt="Astrofisicos en Accion"
-            className="hidden h-auto w-44 md:block"
+            className="hidden h-auto w-10 md:block"
             height={52}
             priority
             src="/logo/logo-primary.svg"
@@ -22,7 +22,7 @@ export function Navbar() {
           />
           <Image
             alt="Astrofisicos en Accion"
-            className="h-auto w-12 md:hidden"
+            className="h-auto w-10 md:hidden"
             height={52}
             priority
             src="/logo/logo-primary.svg"
@@ -32,14 +32,20 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-6 md:flex">
           {navigationItems.map((item) => (
-            <Link key={item.href} className="text-sm font-medium text-moon-300 transition hover:text-moon-50" href={item.href}>
+            <Link
+              key={item.href}
+              className="text-sm font-medium text-moon-300 transition hover:text-moon-50"
+              href={item.href}
+            >
               {item.label}
             </Link>
           ))}
         </nav>
 
         <div className="hidden md:block">
-          <LinkButton href={siteConfig.ctaHref}>{siteConfig.ctaLabel}</LinkButton>
+          <LinkButton href={siteConfig.ctaHref}>
+            {siteConfig.ctaLabel}
+          </LinkButton>
         </div>
 
         <MobileMenu />
@@ -47,4 +53,3 @@ export function Navbar() {
     </header>
   );
 }
-

@@ -34,6 +34,20 @@ function toLabelNames(input) {
     .filter(Boolean);
 }
 
+export function hasPullRequestDiff(compare) {
+  if (!compare || typeof compare !== "object") {
+    return false;
+  }
+
+  if (Array.isArray(compare.files)) {
+    return compare.files.length > 0;
+  }
+
+  return (
+    Number(compare.ahead_by ?? 0) > 0 || Number(compare.total_commits ?? 0) > 0
+  );
+}
+
 export function normalizeVersion(version) {
   const normalized = version.startsWith("v") ? version.slice(1) : version;
 

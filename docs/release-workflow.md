@@ -10,6 +10,8 @@
 
 `main` remains the intended production branch.
 
+`release` is permanent and must not be auto-deleted after merge.
+
 ## Flow
 
 1. Work lands in `develop` through issue-linked PRs.
@@ -62,10 +64,14 @@ Workflow:
 Behavior:
 
 - runs on every push to `develop`
+- restores `release` from `main` first if the permanent release branch is missing
 - reuses the most recent open release-tracking issue with a title starting `[Release]:`
 - creates one if none exists
-- ensures there is an open PR from `develop` to `release`
+- ensures there is an open PR from `develop` to `release` when unreleased changes exist
 - applies the automation labels for the release flow
+
+If `develop` and `release` already have no releasable diff, the workflow writes
+a summary and exits without opening a PR.
 
 The workflow does not choose the semver label automatically. That remains a
 manual release decision.
@@ -83,7 +89,7 @@ Behavior:
 - reads the `release:*` label from that PR
 - bumps the version on `release`
 - creates an automated commit titled `Release 📦 vX.Y.Z`
-- creates or updates the `release -> main` PR
+- creates or updates the `release -> main` PR when a real diff remains
 
 The workflow skips if `release` already points at a `Release 📦 ...` commit, so
 reruns do not double-bump the version.
@@ -101,6 +107,7 @@ Behavior:
 - creates the tag if it does not already exist
 - comments on and closes the release-tracking issue
 - creates or updates an automated `main -> develop` PR so the released version metadata returns to `develop`
+- skips PR creation cleanly if `main` and `develop` are already aligned
 - can be rerun manually with `workflow_dispatch` by supplying the merged `release -> main` PR number if recovery is needed
 
 ## Why the develop sync PR exists

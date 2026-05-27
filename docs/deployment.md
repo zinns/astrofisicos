@@ -1,33 +1,26 @@
 # Deployment Guide
 
-## Current decision
+## Current deployment state
 
-As of May 26, 2026, this repository is public on GitHub, so the original
-private-repository Hobby blocker no longer applies. The deployment strategy for
-this project is:
+- Git provider: GitHub
+- Hosting platform: Vercel
+- Production branch: `main`
+- Shared preview branches: `release`, `develop`
+- Current production URL: [astrofisicos.vercel.app](https://astrofisicos.vercel.app/)
 
-- use Vercel Git integration directly
-- keep deployment creation out of GitHub Actions
-- use `main` as the only production branch
-- use `release` and `develop` as the only shared preview branches
-- disable automatic Git deployments for feature branches
-
-This keeps production aligned with the principal-branch policy while avoiding a
-large number of throwaway preview deployments.
-
-If the repository is already connected to a Vercel project, treat the setup
-checklist below as an audit checklist instead of a first-time setup flow.
+This repository uses Vercel Git integration directly. GitHub Actions must not
+create deployments.
 
 ## Branch and environment mapping
 
 | Git branch                                              | Vercel environment | Purpose                       | Expected domain behavior     |
 | ------------------------------------------------------- | ------------------ | ----------------------------- | ---------------------------- |
-| `main`                                                  | Production         | Live site                     | Production custom domain(s)  |
+| `main`                                                  | Production         | Live site                     | Current production URL       |
 | `release`                                               | Preview            | Shared release validation     | Stable preview branch domain |
 | `develop`                                               | Preview            | Shared integration preview    | Stable preview branch domain |
 | `feature/*`, `fix/*`, `chore/*`, other working branches | None by default    | Local development and CI only | No automatic Git deployment  |
 
-The branch allowlist is enforced with `vercel.json`:
+The branch allowlist is enforced in `vercel.json`:
 
 ```json
 {
@@ -42,9 +35,26 @@ The branch allowlist is enforced with `vercel.json`:
 }
 ```
 
-This means feature-branch pull requests do not receive a Vercel deployment by
-default. Shared browser-based validation happens after integration into
-`develop` or `release`.
+## Runtime policy
+
+- `.nvmrc` tracks `lts/*`
+- GitHub Actions resolves that alias with `check-latest: true`
+- `package.json` keeps the minimum supported floor at Node.js `>=24`
+
+As of May 27, 2026, the active LTS line resolved by `.nvmrc` is
+Node.js `24.16.0`. The repository should follow the active LTS line, not a
+stale pinned patch version.
+
+## Analytics
+
+Vercel Web Analytics is wired in the app through `@vercel/analytics` and the
+root layout mounts `<Analytics />`.
+
+Operational note:
+
+- if Analytics has not been enabled in the Vercel project dashboard yet, enable
+  it from the project Analytics tab so data collection starts on the next
+  deployment
 
 ## Environment variable policy
 
@@ -62,31 +72,16 @@ No runtime secrets are required for the current static-first milestone. If
 future features add secrets or public runtime configuration, those values must
 be added in Vercel and never committed into the repository.
 
-## Required repository config
+## Permanent branch constraints
 
-The repository now carries the minimum deployment-related config:
+- `release` is a permanent branch
+- automatic branch deletion after merge must stay disabled in GitHub
+- if `release` is ever deleted accidentally, restore it from `main` before the
+  next release cycle continues
 
-- `vercel.json` controls which branches can deploy through Git integration
-- `.gitignore` excludes `.vercel` and `.env*`
-- `.nvmrc` pins the repository runtime to Node.js `24.16.0` LTS
-- `package.json` declares the matching supported Node.js range
-
-## Vercel setup checklist
-
-1. Create or confirm the Vercel project for `zinns/astrofisicos`.
-2. Keep `main` as the Vercel Production Branch.
-3. Confirm the framework is detected as Next.js.
-4. Set the project Node.js version to Node.js `24.16.0` LTS or the matching `24.x` line.
-5. Verify that branch deployments follow `vercel.json`:
-   - `main` deploys to Production
-   - `release` deploys to Preview
-   - `develop` deploys to Preview
-   - working branches do not auto-deploy
-6. Add the production domain to `main`.
-7. Assign stable preview domains to `release` and `develop` if the team wants
-   fixed QA URLs.
-8. Configure environment variables only in `Development`, `Preview`, and
-   `Production`.
+The release automation now also restores `release` from `main` if the branch is
+missing when `sync-release-pr` runs, but that is recovery behavior, not the
+normal operating mode.
 
 ## Operational rules
 
@@ -97,12 +92,12 @@ The repository now carries the minimum deployment-related config:
   working branch.
 - If feature-branch previews become necessary later, change `vercel.json` in a
   dedicated PR and document the reason.
-- If the repository becomes private again while staying on Hobby, re-check the
-  Git integration constraint before relying on the current setup.
 
 ## References
 
 - [Deploying Git Repositories with Vercel](https://vercel.com/docs/git)
 - [Git Configuration](https://vercel.com/docs/project-configuration/git-configuration)
+- [Vercel Web Analytics](https://vercel.com/docs/analytics)
+- [Analytics Quickstart](https://vercel.com/docs/analytics/quickstart)
 - [Environment Variables](https://vercel.com/docs/environment-variables)
 - [Assigning a Domain to a Git Branch](https://vercel.com/docs/domains/working-with-domains/assign-domain-to-a-git-branch)
