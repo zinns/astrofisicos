@@ -107,5 +107,6 @@ export function createGitHubClient({
     get: (path) => request(path),
     patch: (path, body) => request(path, { method: "PATCH", body }),
     post: (path, body) => request(path, { method: "POST", body }),
+    put: (path, body) => request(path, { method: "PUT", body }),
   };
 }

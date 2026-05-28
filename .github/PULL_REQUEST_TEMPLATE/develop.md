@@ -25,11 +25,12 @@ Closes #<issue-id>
 
 - [ ] This PR targets `develop`, not `release` or `main`
 - [ ] If this PR changes version or release metadata, it does so through the documented principal-branch sync flow
-- [ ] No open production sync (`main -> develop`) PR is being bypassed by this change
+- [ ] No open release metadata sync PR is being bypassed by this change
 
 ## Merge strategy
 
-- Squash merge only
+- Merge commit only
+- Use the PR title as the merge commit title.
 
 ## Suggested commit title
 

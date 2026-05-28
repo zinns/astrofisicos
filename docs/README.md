@@ -9,4 +9,4 @@ release policy, and deployment behavior:
 - [CI And Merge Protection](./merge-protection.md): active GitHub checks and the required protection model
 - [Principal Branch Policy](./principal-branch-policy.md): allowed permanent-branch movements and conflict-prevention rules
 - [Repository Labels](./repository-labels.md): label source of truth and PR label requirements
-- [Release Workflow](./release-workflow.md): automation behavior for `develop -> release -> main -> develop`
+- [Release Workflow](./release-workflow.md): automation behavior for `develop -> release -> main` and release metadata sync

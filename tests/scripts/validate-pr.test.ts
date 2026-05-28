@@ -59,12 +59,12 @@ describe("derivePrLabels", () => {
     );
   });
 
-  it("adds automation labels for main to develop sync PRs", () => {
+  it("adds automation labels for release metadata sync PRs", () => {
     expect(
       derivePrLabels({
-        title: "chore(release): sync main back to develop (#12)",
+        title: "chore(release): sync release metadata (#12)",
         baseRef: "develop",
-        headRef: "main",
+        headRef: "ci/12-release-metadata-sync",
       }),
     ).toEqual(
       expect.arrayContaining(["type:chore", "area:infra", "automation"]),
@@ -85,7 +85,7 @@ describe("validatePrMetadata", () => {
     expect(checks.every((check) => check.passed)).toBe(true);
   });
 
-  it("blocks non-sync PRs to develop while the main sync PR is open", () => {
+  it("blocks non-sync PRs to develop while the release sync PR is open", () => {
     const checks = validatePrMetadata({
       title: "feat(content): add latest content hub entries (#18)",
       body: "Closes #18",
@@ -147,12 +147,12 @@ describe("validatePrMetadata", () => {
     expect(checks.every((check) => check.passed)).toBe(true);
   });
 
-  it("accepts an automated main to develop sync PR with a non-closing issue reference", () => {
+  it("accepts an automated release metadata sync PR with a non-closing issue reference", () => {
     const checks = validatePrMetadata({
-      title: "chore(release): sync main back to develop (#12)",
+      title: "chore(release): sync release metadata (#12)",
       body: "Refs #12",
       baseRef: "develop",
-      headRef: "main",
+      headRef: "ci/12-release-metadata-sync",
       labels: ["type:chore", "area:infra", "automation"],
       openDevelopSyncPrNumber: 34,
     });

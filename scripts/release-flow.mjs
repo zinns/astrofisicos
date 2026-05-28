@@ -168,7 +168,8 @@ export function buildReleasePrBody(issueNumber) {
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Do not squash permanent-branch PRs; preserving ancestry prevents future release conflicts.",
     "",
     "## Suggested commit title",
     "",
@@ -207,7 +208,8 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Do not squash permanent-branch PRs; preserving ancestry prevents future release conflicts.",
     "",
     "## Suggested commit title",
     "",
@@ -215,13 +217,13 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Next steps",
     "",
-    "- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the `main -> develop` sync PR.",
-    "- The generated `main -> develop` sync PR must merge before any other PR targeting `develop` proceeds.",
+    "- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the release metadata sync PR into `develop`.",
+    "- The generated sync PR must merge before any other PR targeting `develop` proceeds.",
   ].join("\n");
 }
 
 export function buildDevelopSyncPrTitle(issueNumber) {
-  return `chore(release): sync main back to develop (#${issueNumber})`;
+  return `chore(release): sync release metadata (#${issueNumber})`;
 }
 
 export function buildDevelopSyncPrBody(issueNumber, version) {
@@ -232,8 +234,9 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Purpose",
     "",
-    `- Sync released version \`v${normalizeVersion(version)}\` from \`main\` back into \`develop\`.`,
+    `- Apply released version \`v${normalizeVersion(version)}\` onto a branch created from \`develop\`.`,
     "- Keep version metadata aligned before the next release cycle starts.",
+    "- Avoid a direct permanent-branch merge when only release metadata needs to be synchronized.",
     "",
     "## Validation",
     "",
@@ -242,7 +245,8 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Use the PR title as the merge commit title.",
     "",
     "## Suggested commit title",
     "",
@@ -253,6 +257,10 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "- Merge this sync PR before any other PR targeting `develop` proceeds.",
     "- After it merges, normal feature PRs to `develop` and the next `develop -> release` cycle may continue without version drift.",
   ].join("\n");
+}
+
+export function buildDevelopSyncBranchName(issueNumber) {
+  return `ci/${issueNumber}-release-metadata-sync`;
 }
 
 export function buildReleaseTag(version) {

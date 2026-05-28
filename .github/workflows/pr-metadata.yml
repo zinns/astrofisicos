@@ -87,11 +87,12 @@ jobs:
         with:
           node-version-file: .nvmrc
           check-latest: true
-      - name: Find open main to develop sync PR
+      - name: Find open release sync PR
         id: sync-pr
         uses: actions/github-script@v7
         with:
           script: |
+            const releaseMetadataSyncBranchPattern = /^ci\/\d+-release-metadata-sync$/;
             const { data: pulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -102,7 +103,8 @@ jobs:
 
             const syncPr = pulls.find(
               (pr) =>
-                pr.head.ref === "main" &&
+                (pr.head.ref === "main" ||
+                  releaseMetadataSyncBranchPattern.test(pr.head.ref)) &&
                 pr.number !== context.payload.pull_request.number,
             );
 
