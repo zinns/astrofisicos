@@ -51,11 +51,18 @@ For `develop`, add:
 
 The repository should stay aligned with the workflow strategy:
 
-- squash merge enabled
-- merge commits disabled
+- merge commits enabled
+- squash merge disabled
 - rebase merges disabled
 - permanent branches must not auto-delete after merge
-- squash merge commit message set to the PR title
+- merge commit title set to the PR title
+- merge commit message set to the PR body
+
+Important:
+
+- `develop -> release` and `release -> main` must use merge commits
+- squashing permanent-branch PRs destroys shared ancestry and is the root cause of the PR #22 conflict pattern
+- disabling squash globally is intentional because GitHub merge-method settings are repository-wide
 
 ## Current repository state
 

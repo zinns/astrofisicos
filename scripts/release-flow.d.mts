@@ -1,3 +1,5 @@
+export function hasPullRequestDiff(compare: unknown): boolean;
+
 export function normalizeVersion(version: string): string;
 
 export function extractReleaseLabel(labels: string | unknown[]): string;
@@ -24,6 +26,8 @@ export function buildMainReleasePrBody(
 ): string;
 
 export function buildDevelopSyncPrTitle(issueNumber: number): string;
+
+export function buildDevelopSyncBranchName(issueNumber: number): string;
 
 export function buildDevelopSyncPrBody(
   issueNumber: number,

@@ -24,6 +24,7 @@ const releaseLabels = new Set([
   "release:minor",
   "release:major",
 ]);
+const releaseMetadataSyncBranchPattern = /^ci\/\d+-release-metadata-sync$/u;
 
 function parseOptionalPullNumber(value) {
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -114,7 +115,9 @@ export function validatePrMetadata({
   });
   const normalizedBody = body ?? "";
   const isAutomationPr = labelNames.includes("automation");
-  const isAutomatedDevelopSyncPr = baseRef === "develop" && headRef === "main";
+  const isAutomatedDevelopSyncPr =
+    baseRef === "develop" &&
+    (headRef === "main" || releaseMetadataSyncBranchPattern.test(headRef));
   const checks = [];
 
   checks.push({
@@ -139,7 +142,7 @@ export function validatePrMetadata({
         ? developIssueReferencePattern.test(normalizedBody)
         : releaseIssueReferencePattern.test(normalizedBody),
     message: isAutomatedDevelopSyncPr
-      ? 'Automated main -> develop PRs must include "Release tracking: #123" or "Refs #123".'
+      ? 'Automated release sync PRs must include "Release tracking: #123" or "Refs #123".'
       : baseRef === "develop"
         ? 'PR body must include "Closes #123" or "Fixes #123".'
         : 'PR body must include "Release tracking: #123" or "Refs #123".',
@@ -147,7 +150,7 @@ export function validatePrMetadata({
 
   const hasOpenDevelopSyncPr =
     baseRef === "develop" &&
-    headRef !== "main" &&
+    !isAutomatedDevelopSyncPr &&
     openDevelopSyncPrNumber !== null;
 
   checks.push({
@@ -155,8 +158,8 @@ export function validatePrMetadata({
     label: "Develop Sync Gate",
     passed: !hasOpenDevelopSyncPr,
     message: hasOpenDevelopSyncPr
-      ? `PRs targeting develop are blocked while main -> develop sync PR #${openDevelopSyncPrNumber} is open. Merge the sync PR first.`
-      : "No open main -> develop sync PR is blocking develop.",
+      ? `PRs targeting develop are blocked while release sync PR #${openDevelopSyncPrNumber} is open. Merge the sync PR first.`
+      : "No open release sync PR is blocking develop.",
   });
 
   const labelFailures = [];

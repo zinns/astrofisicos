@@ -29,16 +29,19 @@ Each template includes:
 
 ## Merge strategy
 
-- Squash merge only
+- All PRs use merge commits.
+- The PR title should be used as the merge commit title.
 
-This keeps the final history aligned with PR titles and with the commit policy.
+Permanent branch PRs must preserve ancestry. Squashing those PRs makes Git treat
+later `develop`, `release`, and `main` changes as unrelated work and can create
+large add/add conflicts in later release candidates.
 
 ## Approval model
 
 For human-authored PRs targeting `develop`:
 
 - the PR must carry the `approved` label before merge
-- the PR must not bypass an open automated `main -> develop` sync PR
+- the PR must not bypass an open automated release metadata sync PR
 
 For automated PRs:
 
