@@ -2,6 +2,8 @@ const conventionalTitlePattern =
   /^(?<type>build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(?:\((?<scope>[a-z0-9./-]+)\))?!?: /u;
 const releaseTitlePattern =
   /^Release 📦 v\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/u;
+const releaseMetadataSyncBranchPattern = /^ci\/\d+-release-metadata-sync$/u;
+const mainReleaseSnapshotBranchPattern = /^ci\/\d+-main-release-v\d+-\d+-\d+$/u;
 
 const typeToLabel = {
   build: "type:chore",
@@ -67,14 +69,17 @@ export function derivePrLabels({ title, baseRef, headRef }) {
     labels.add("area:infra");
   }
 
-  if (baseRef === "main" && headRef === "release") {
+  if (baseRef === "main" && mainReleaseSnapshotBranchPattern.test(headRef)) {
     labels.add("automation");
     labels.add("flow:main");
     labels.add("type:chore");
     labels.add("area:infra");
   }
 
-  if (baseRef === "develop" && headRef === "main") {
+  if (
+    baseRef === "develop" &&
+    (headRef === "main" || releaseMetadataSyncBranchPattern.test(headRef))
+  ) {
     labels.add("automation");
     labels.add("type:chore");
     labels.add("area:infra");
