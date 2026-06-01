@@ -14,18 +14,21 @@ Release tracking: #<release-tracking-issue>
 
 ## Principal branch safety
 
-- [ ] This is the only active `release -> main` PR for the current candidate
-- [ ] `release` contains only the intended release changes
+- [ ] This PR comes from a generated branch named like `ci/<release-issue>-main-release-vX-Y-Z`
+- [ ] This is the only active production snapshot PR for the current candidate
+- [ ] The snapshot commit copies the validated `release` tree into one `Release 📦 vX.Y.Z` commit
 - [ ] After merge, the automated release metadata sync PR must be allowed to open and merge before the next `develop -> release` merge
 
 ## Deployment expectations
 
-- This merge is expected to trigger the only production deployment path: `release -> main` and then Vercel building from `main`
+- This merge is expected to trigger the only production deployment path: production snapshot -> `main` and then Vercel building from `main`
+- `main` should contain only `Release 📦 v...` release commits and their release PR merge commits
 
 ## Merge strategy
 
 - Merge commit only
-- Do not squash permanent-branch PRs; shared ancestry prevents future release conflicts.
+- Use the PR title as the merge commit title.
+- Do not replace this PR with a direct `release -> main` PR.
 
 ## Suggested commit title
 

@@ -42,12 +42,12 @@ describe("derivePrLabels", () => {
     );
   });
 
-  it("adds automation labels for release to main PRs", () => {
+  it("adds automation labels for production snapshot PRs", () => {
     expect(
       derivePrLabels({
         title: "Release 📦 v0.2.0",
         baseRef: "main",
-        headRef: "release",
+        headRef: "ci/12-main-release-v0-2-0",
       }),
     ).toEqual(
       expect.arrayContaining([
@@ -160,16 +160,31 @@ describe("validatePrMetadata", () => {
     expect(checks.every((check) => check.passed)).toBe(true);
   });
 
-  it("accepts an automated release to main PR before labels persist", () => {
+  it("accepts an automated production snapshot PR before labels persist", () => {
+    const checks = validatePrMetadata({
+      title: "Release 📦 v0.2.0",
+      body: "Release tracking: #12",
+      baseRef: "main",
+      headRef: "ci/12-main-release-v0-2-0",
+      labels: [],
+    });
+
+    expect(checks.every((check) => check.passed)).toBe(true);
+  });
+
+  it("rejects direct release to main PRs", () => {
     const checks = validatePrMetadata({
       title: "Release 📦 v0.2.0",
       body: "Release tracking: #12",
       baseRef: "main",
       headRef: "release",
-      labels: [],
+      labels: ["type:chore", "area:infra", "automation", "flow:main"],
     });
 
-    expect(checks.every((check) => check.passed)).toBe(true);
+    expect(checks.find((check) => check.id === "labels")?.passed).toBe(false);
+    expect(checks.find((check) => check.id === "labels")?.message).toContain(
+      "generated main-based release snapshot branch",
+    );
   });
 
   it("accepts a valid release candidate PR", () => {

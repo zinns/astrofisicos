@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: Merged release -> main PR number to finalize
+        description: Merged production snapshot PR number to finalize
         required: true
         type: string
 

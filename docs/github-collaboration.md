@@ -63,11 +63,14 @@ For PRs to `release`:
 chore(release): prepare release candidate (#<release-tracking-issue>)
 ```
 
-For PRs to `main`:
+For generated production snapshot PRs to `main`:
 
 ```txt
 Release 📦 vX.Y.Z
 ```
+
+`main` PRs must come from generated branches named like
+`ci/<release-issue>-main-release-vX-Y-Z`, not directly from `release`.
 
 ## GitHub-side validation
 

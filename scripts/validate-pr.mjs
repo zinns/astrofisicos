@@ -25,6 +25,7 @@ const releaseLabels = new Set([
   "release:major",
 ]);
 const releaseMetadataSyncBranchPattern = /^ci\/\d+-release-metadata-sync$/u;
+const mainReleaseSnapshotBranchPattern = /^ci\/\d+-main-release-v\d+-\d+-\d+$/u;
 
 function parseOptionalPullNumber(value) {
   if (typeof value !== "string" || value.trim().length === 0) {
@@ -208,16 +209,22 @@ export function validatePrMetadata({
     }
   }
 
-  if (baseRef === "main" && headRef === "release") {
+  if (baseRef === "main") {
+    if (!mainReleaseSnapshotBranchPattern.test(headRef)) {
+      labelFailures.push(
+        "PRs targeting main must come from a generated main-based release snapshot branch like ci/123-main-release-v1-2-3.",
+      );
+    }
+
     if (!labelNames.includes("automation")) {
       labelFailures.push(
-        'The release -> main PR must include the "automation" label.',
+        'The production snapshot PR must include the "automation" label.',
       );
     }
 
     if (!labelNames.includes("flow:main")) {
       labelFailures.push(
-        'The release -> main PR must include the "flow:main" label.',
+        'The production snapshot PR must include the "flow:main" label.',
       );
     }
   }

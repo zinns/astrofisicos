@@ -4,6 +4,7 @@ import {
   buildDevelopSyncBranchName,
   buildDevelopSyncPrBody,
   buildDevelopSyncPrTitle,
+  buildMainReleaseBranchName,
   buildMainReleasePrBody,
   buildMainReleasePrTitle,
   buildReleaseIssueComment,
@@ -75,12 +76,18 @@ describe("release metadata builders", () => {
     );
     expect(buildReleasePrBody(14)).toContain("Release tracking: #14");
     expect(buildReleasePrBody(14)).toContain(
-      "automation will bump the version on `release` and create or update the `release -> main` PR",
+      "automation will bump the version on `release` and create or update a `main`-based production snapshot PR",
     );
     expect(buildMainReleasePrTitle("0.2.0")).toBe("Release 📦 v0.2.0");
+    expect(buildMainReleaseBranchName(14, "0.2.0")).toBe(
+      "ci/14-main-release-v0-2-0",
+    );
     expect(buildMainReleasePrBody(14, "0.2.0")).toContain("`v0.2.0`");
     expect(buildMainReleasePrBody(14, "0.2.0")).toContain(
       "create or update the release metadata sync PR",
+    );
+    expect(buildMainReleasePrBody(14, "0.2.0")).toContain(
+      "validated `release` tree copied into one release snapshot commit",
     );
     expect(buildDevelopSyncPrTitle(14)).toBe(
       "chore(release): sync release metadata (#14)",

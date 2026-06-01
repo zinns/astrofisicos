@@ -20,6 +20,11 @@ export function buildReleasePrBody(issueNumber: number): string;
 
 export function buildMainReleasePrTitle(version: string): string;
 
+export function buildMainReleaseBranchName(
+  issueNumber: number,
+  version: string,
+): string;
+
 export function buildMainReleasePrBody(
   issueNumber: number,
   version: string,

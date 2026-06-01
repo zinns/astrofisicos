@@ -87,7 +87,7 @@ normal operating mode.
 
 - Do not deploy from GitHub Actions.
 - Do not use `vercel --prod` for normal releases.
-- Production changes must enter Vercel only through `release -> main`.
+- Production changes must enter Vercel only through generated production snapshot PRs targeting `main`.
 - If a preview needs to be shared broadly, use `develop` or `release`, not a
   working branch.
 - If feature-branch previews become necessary later, change `vercel.json` in a

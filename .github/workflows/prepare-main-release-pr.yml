@@ -72,7 +72,7 @@ jobs:
             git commit -m "${{ steps.metadata.outputs.release_commit_title }}"
             git push origin release
           fi
-      - name: Sync release to main PR
+      - name: Sync production snapshot PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEXT_VERSION: ${{ steps.metadata.outputs.next_version }}

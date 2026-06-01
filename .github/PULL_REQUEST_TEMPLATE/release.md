@@ -34,5 +34,5 @@ Release tracking: #<release-tracking-issue>
 
 ## Next steps
 
-- After merge, automation will bump the version on `release` and create or update the `release -> main` PR.
-- Note any release-only fixes or checks that must happen before the automated `release -> main` PR is merged.
+- After merge, automation will bump the version on `release` and create or update the generated production snapshot PR into `main`.
+- Note any release-only fixes or checks that must happen before the automated production snapshot PR is merged.
