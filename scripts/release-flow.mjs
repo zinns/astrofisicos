@@ -177,13 +177,17 @@ export function buildReleasePrBody(issueNumber) {
     "",
     "## Next steps",
     "",
-    "- After merge, automation will bump the version on `release` and create or update the `release -> main` PR.",
-    "- Note any release-only fixes or validation steps that must happen before the automated `release -> main` PR is merged.",
+    "- After merge, automation will bump the version on `release` and create or update a `main`-based production snapshot PR.",
+    "- Note any release-only fixes or validation steps that must happen before the automated production snapshot PR is merged.",
   ].join("\n");
 }
 
 export function buildMainReleasePrTitle(version) {
   return `Release 📦 v${normalizeVersion(version)}`;
+}
+
+export function buildMainReleaseBranchName(issueNumber, version) {
+  return `ci/${issueNumber}-main-release-v${normalizeVersion(version).replaceAll(".", "-")}`;
 }
 
 export function buildMainReleasePrBody(issueNumber, version) {
@@ -204,12 +208,15 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Deployment expectations",
     "",
-    "- This merge is expected to trigger the only production deployment path: `release -> main` and then Vercel building from `main`",
+    "- This PR is generated from a branch based on `main`, with the validated `release` tree copied into one release snapshot commit.",
+    "- This merge is expected to trigger the only production deployment path: production snapshot -> `main` and then Vercel building from `main`.",
+    "- `main` must contain only `Release 📦 v...` production release commits and their release PR merge commits.",
     "",
     "## Merge strategy",
     "",
     "- Merge commit only",
-    "- Do not squash permanent-branch PRs; preserving ancestry prevents future release conflicts.",
+    "- Use the PR title as the merge commit title.",
+    "- Do not change this PR to direct `release -> main`; direct permanent-branch production merges are intentionally blocked to keep `main` release-only.",
     "",
     "## Suggested commit title",
     "",

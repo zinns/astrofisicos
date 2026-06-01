@@ -13,7 +13,7 @@ Current production URL:
 - runtime selector: `.nvmrc` tracks `lts/*`
 - app shape: static-first Next.js routes with typed content data
 - analytics: Vercel Web Analytics is wired through `@vercel/analytics`
-- release flow: `develop -> release -> main`, then release metadata syncs back into `develop`
+- release flow: `develop -> release`, then a `main`-based production snapshot PR, then release metadata syncs back into `develop`
 
 As of May 27, 2026, the current Node.js LTS line resolved by `.nvmrc` is
 `v24.16.0`. Use `nvm install --lts && nvm use` before local work if your
@@ -37,6 +37,7 @@ name validation, linting, typechecking, and tests pass.
 - commits must be conventional and end with `(#<issue-id>)`
 - human PRs target `develop` only
 - `release` is a permanent branch and must never be auto-deleted
+- `main` receives only generated `Release 📦 v...` production snapshot PRs
 - PRs use merge commits so ancestry is preserved
 - if an automated release metadata sync PR is open, other PRs to `develop`
   stay blocked until it merges

@@ -7,6 +7,7 @@ import {
   buildDevelopSyncPrBody,
   buildDevelopSyncPrTitle,
   hasPullRequestDiff,
+  buildMainReleaseBranchName,
   buildMainReleasePrBody,
   buildMainReleasePrTitle,
   buildReleaseIssueComment,
@@ -128,6 +129,35 @@ async function createBranchRef(client, { owner, repo }, branchName, sha) {
   return client.post(`/repos/${owner}/${repo}/git/refs`, {
     ref: `refs/heads/${branchName}`,
     sha,
+  });
+}
+
+async function updateBranchRef(client, { owner, repo }, branchName, sha) {
+  return client.patch(`/repos/${owner}/${repo}/git/refs/heads/${branchName}`, {
+    force: true,
+    sha,
+  });
+}
+
+async function getGitCommit(client, { owner, repo }, sha) {
+  const commit = await client.get(`/repos/${owner}/${repo}/git/commits/${sha}`);
+
+  if (!commit?.tree?.sha) {
+    throw new Error(`Unable to resolve Git tree for commit ${sha}.`);
+  }
+
+  return commit;
+}
+
+async function createGitCommit(
+  client,
+  { owner, repo },
+  { message, parentSha, treeSha },
+) {
+  return client.post(`/repos/${owner}/${repo}/git/commits`, {
+    message,
+    parents: [parentSha],
+    tree: treeSha,
   });
 }
 
@@ -306,6 +336,74 @@ async function updatePackageVersionOnBranch(
 
 async function compareBranches(client, { owner, repo }, { base, head }) {
   return client.get(`/repos/${owner}/${repo}/compare/${base}...${head}`);
+}
+
+async function ensureMainReleaseSnapshotBranch(
+  client,
+  repoContext,
+  { branchName, version },
+) {
+  const title = buildMainReleasePrTitle(version);
+  const [mainBranch, releaseBranch] = await Promise.all([
+    getBranch(client, repoContext, "main"),
+    getBranch(client, repoContext, "release"),
+  ]);
+
+  if (!mainBranch?.commit?.sha) {
+    throw new Error("Unable to resolve the main branch.");
+  }
+
+  if (!releaseBranch?.commit?.sha) {
+    throw new Error("Unable to resolve the release branch.");
+  }
+
+  const releaseCommit = await getGitCommit(
+    client,
+    repoContext,
+    releaseBranch.commit.sha,
+  );
+  const existingBranch = await getBranch(client, repoContext, branchName);
+
+  if (!existingBranch) {
+    await createBranchRef(
+      client,
+      repoContext,
+      branchName,
+      mainBranch.commit.sha,
+    );
+  }
+
+  const branchHeadCommit = existingBranch?.commit?.sha
+    ? await getGitCommit(client, repoContext, existingBranch.commit.sha)
+    : null;
+
+  if (
+    branchHeadCommit?.message === title &&
+    branchHeadCommit.tree.sha === releaseCommit.tree.sha &&
+    branchHeadCommit.parents?.[0]?.sha === mainBranch.commit.sha
+  ) {
+    return {
+      branchName,
+      commitSha: existingBranch.commit.sha,
+      createdBranch: !existingBranch,
+      updatedCommit: false,
+    };
+  }
+
+  const snapshotCommit = await createGitCommit(client, repoContext, {
+    message: title,
+    parentSha: mainBranch.commit.sha,
+    treeSha: releaseCommit.tree.sha,
+  });
+
+  await updateBranchRef(client, repoContext, branchName, snapshotCommit.sha);
+
+  return {
+    branchName,
+    commitSha: snapshotCommit.sha,
+    createdBranch: !existingBranch,
+    updatedCommit: true,
+  };
 }
 
 async function syncReleasePr() {
@@ -529,10 +627,36 @@ async function syncMainPr() {
   }
 
   const title = buildMainReleasePrTitle(nextVersion);
+  const branchName = buildMainReleaseBranchName(
+    releaseIssueNumber,
+    nextVersion,
+  );
   const body = buildMainReleasePrBody(releaseIssueNumber, nextVersion);
-  const existingPr = await findOpenPullRequest(client, repoContext, {
+  const staleDirectPr = await findOpenPullRequest(client, repoContext, {
     base: "main",
     head: "release",
+  });
+
+  if (staleDirectPr) {
+    await closePullRequest(
+      client,
+      repoContext,
+      staleDirectPr.number,
+      [
+        "Closing this direct `release -> main` PR because production releases now use a generated `main`-based snapshot branch.",
+        "",
+        "This keeps `main` limited to `Release 📦 v...` commits and avoids permanent-branch merge conflicts.",
+      ].join("\n"),
+    );
+  }
+
+  const snapshot = await ensureMainReleaseSnapshotBranch(client, repoContext, {
+    branchName,
+    version: nextVersion,
+  });
+  const existingPr = await findOpenPullRequest(client, repoContext, {
+    base: "main",
+    head: branchName,
   });
 
   if (existingPr) {
@@ -549,7 +673,11 @@ async function syncMainPr() {
     ]);
 
     appendSummary("Main Release PR", [
-      `- Updated release -> main PR #${existingPr.number}.`,
+      staleDirectPr
+        ? `- Closed stale direct release -> main PR #${staleDirectPr.number}.`
+        : "- No stale direct release -> main PR needed closing.",
+      `- Updated production snapshot PR #${existingPr.number}.`,
+      `- Snapshot branch: \`${snapshot.branchName}\` at \`${snapshot.commitSha.slice(0, 7)}\`.`,
       `- Target version: \`v${nextVersion}\`.`,
     ]);
 
@@ -558,12 +686,15 @@ async function syncMainPr() {
 
   const comparison = await compareBranches(client, repoContext, {
     base: "main",
-    head: "release",
+    head: branchName,
   });
 
   if (!hasPullRequestDiff(comparison)) {
     appendSummary("Main Release PR", [
-      "- No unreleased changes were detected between `release` and `main`; no release PR was opened.",
+      staleDirectPr
+        ? `- Closed stale direct release -> main PR #${staleDirectPr.number}.`
+        : "- No stale direct release -> main PR needed closing.",
+      "- No unreleased changes were detected between the production snapshot and `main`; no release PR was opened.",
       `- Target version remains \`v${nextVersion}\`.`,
     ]);
 
@@ -575,7 +706,7 @@ async function syncMainPr() {
     {
       base: "main",
       body,
-      head: "release",
+      head: branchName,
       title,
     },
   );
@@ -588,7 +719,11 @@ async function syncMainPr() {
   ]);
 
   appendSummary("Main Release PR", [
-    `- Created release -> main PR #${createdPr.number}.`,
+    staleDirectPr
+      ? `- Closed stale direct release -> main PR #${staleDirectPr.number}.`
+      : "- No stale direct release -> main PR needed closing.",
+    `- Created production snapshot PR #${createdPr.number}.`,
+    `- Snapshot branch: \`${snapshot.branchName}\` at \`${snapshot.commitSha.slice(0, 7)}\`.`,
     `- Target version: \`v${nextVersion}\`.`,
   ]);
 }
