@@ -11,6 +11,11 @@ This repository uses three permanent branches:
 The policy below exists to prevent divergence and merge conflicts between those
 branches.
 
+Permanent-branch rule:
+
+- `develop`, `release`, and `main` are never disposable branches
+- GitHub auto-delete for merged branches must stay disabled
+
 ## Allowed pull request directions
 
 Only these branch movements are allowed:
@@ -18,9 +23,11 @@ Only these branch movements are allowed:
 1. working branch -> `develop`
 2. `develop` -> `release`
 3. `release` -> `main`
-4. `main` -> `develop`
+4. release metadata sync branch -> `develop`
 
-The `main -> develop` PR is the sync-back PR created after a production release.
+The release metadata sync branch is created from `develop` after production
+release and applies the released package version without merging the permanent
+branches directly.
 
 ## Disallowed pull request directions
 
@@ -30,6 +37,7 @@ These flows should not be used:
 - working branch -> `main`
 - `develop` -> `main`
 - `release` -> `develop`
+- routine `main` -> `develop` PRs for release metadata only
 - direct commits to `develop`, `release`, or `main`
 
 ## Single-path release rule
@@ -38,7 +46,8 @@ At any given time:
 
 - there should be only one active `develop -> release` PR
 - there should be only one active `release -> main` PR
-- after a production release, the generated `main -> develop` sync PR must be merged before the next `develop -> release` PR is merged
+- after a production release, the generated release metadata sync PR must be merged before the next `develop -> release` PR is merged
+- while that sync PR is open, no other PR targeting `develop` should proceed
 
 This is the main rule that prevents version drift and branch conflicts.
 
@@ -56,18 +65,25 @@ Not allowed on `release`:
 - new feature work
 - unrelated refactors
 - manual version changes outside the release automation flow
+- leaving `release` deleted after a completed production merge
 
 If a release-only fix is required:
 
 1. branch from `release`
 2. open a PR back into `release`
-3. let the normal `release -> main` and `main -> develop` flow carry it forward
+3. let the normal `release -> main` and release metadata sync flow carry it forward
+
+If `release` is deleted accidentally:
+
+1. restore `release` from `main`
+2. confirm the restored branch points at the last production-ready release commit
+3. rerun or wait for `sync-release-pr` so the next `develop -> release` PR is recreated from a valid base
 
 ## Conflict prevention rules
 
 Before merging `develop -> release`:
 
-- confirm there is no open `main -> develop` sync PR
+- confirm there is no open release metadata sync PR
 - confirm there is no open `release -> main` PR for the current or older candidate
 - confirm `release` contains only stabilization work for that release candidate
 
@@ -79,8 +95,9 @@ Before merging `release -> main`:
 
 After merging `release -> main`:
 
-- automation must create or update the `main -> develop` sync PR
+- automation must create or update the release metadata sync PR
 - that sync PR must merge before the next release candidate is merged from `develop`
+- other PRs targeting `develop` should remain blocked until the sync PR is merged
 
 ## Hotfix rule
 
@@ -90,19 +107,21 @@ If a hotfix must go directly to `main`:
 
 1. branch from `main`
 2. open a PR into `main`
-3. after merge, sync `main` back into `develop`
+3. after merge, open a dedicated hotfix sync PR into `develop`
 4. if the `release` branch is still active, port the same fix into `release` before continuing release work
 
 Do not assume `develop` or `release` already contains a direct `main` hotfix.
 
 ## Merge strategy
 
-All permanent-branch PRs use:
+All PRs use:
 
-- squash merge only
+- merge commit only
 
-This keeps the history linear and makes the PR title the source of truth for
-release metadata.
+GitHub merge-method settings are repository-wide, so squash is disabled for the
+whole repository. Preserving ancestry is more important than a compact commit
+graph here because squashing `develop -> release` or `release -> main` creates
+future add/add conflicts when Git loses the shared branch history.
 
 ## Operational rule
 
@@ -116,5 +135,5 @@ Instead:
 3. reopen or refresh the correct PR
 
 The normal fix for drift after a release is not `develop -> release` conflict
-resolution by hand. The normal fix is to merge the missing `main -> develop`
+resolution by hand. The normal fix is to merge the missing release metadata
 sync PR first.

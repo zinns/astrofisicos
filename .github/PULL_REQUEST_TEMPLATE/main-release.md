@@ -16,7 +16,7 @@ Release tracking: #<release-tracking-issue>
 
 - [ ] This is the only active `release -> main` PR for the current candidate
 - [ ] `release` contains only the intended release changes
-- [ ] After merge, the automated `main -> develop` sync PR must be allowed to open and merge before the next `develop -> release` merge
+- [ ] After merge, the automated release metadata sync PR must be allowed to open and merge before the next `develop -> release` merge
 
 ## Deployment expectations
 
@@ -24,7 +24,8 @@ Release tracking: #<release-tracking-issue>
 
 ## Merge strategy
 
-- Squash merge only
+- Merge commit only
+- Do not squash permanent-branch PRs; shared ancestry prevents future release conflicts.
 
 ## Suggested commit title
 
@@ -32,4 +33,5 @@ Release tracking: #<release-tracking-issue>
 
 ## Next steps
 
-- Note the tag, release notes, and post-merge actions expected after merge.
+- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the release metadata sync PR into `develop`.
+- That generated sync PR must merge before any other PR targeting `develop` proceeds.

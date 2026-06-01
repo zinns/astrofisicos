@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildDevelopSyncBranchName,
   buildDevelopSyncPrBody,
   buildDevelopSyncPrTitle,
   buildMainReleasePrBody,
@@ -73,12 +74,22 @@ describe("release metadata builders", () => {
       "chore(release): prepare release candidate (#14)",
     );
     expect(buildReleasePrBody(14)).toContain("Release tracking: #14");
+    expect(buildReleasePrBody(14)).toContain(
+      "automation will bump the version on `release` and create or update the `release -> main` PR",
+    );
     expect(buildMainReleasePrTitle("0.2.0")).toBe("Release 📦 v0.2.0");
     expect(buildMainReleasePrBody(14, "0.2.0")).toContain("`v0.2.0`");
-    expect(buildDevelopSyncPrTitle(14)).toBe(
-      "chore(release): sync main back to develop (#14)",
+    expect(buildMainReleasePrBody(14, "0.2.0")).toContain(
+      "create or update the release metadata sync PR",
     );
+    expect(buildDevelopSyncPrTitle(14)).toBe(
+      "chore(release): sync release metadata (#14)",
+    );
+    expect(buildDevelopSyncBranchName(14)).toBe("ci/14-release-metadata-sync");
     expect(buildDevelopSyncPrBody(14, "0.2.0")).toContain("Refs #14");
+    expect(buildDevelopSyncPrBody(14, "0.2.0")).toContain(
+      "before any other PR targeting `develop` proceeds",
+    );
   });
 
   it("formats release tags and closing comments", () => {

@@ -1,9 +1,10 @@
 # CI And Merge Protection
 
-## Current Phase 4 state
+## Current state
 
-Phase 4 added the GitHub-side validation workflows and tightened the merge
-settings that can be controlled at the repository level.
+The GitHub-side validation workflows are live. What still needs live GitHub
+administration is turning those checks into mandatory branch protections or
+rulesets.
 
 Live workflow files:
 
@@ -20,6 +21,10 @@ PR metadata checks:
 - `Issue Reference`
 - `Labels`
 
+Additional `develop`-only metadata check:
+
+- `Develop Sync Gate`
+
 Repository validation check:
 
 - `Repository Validation`
@@ -30,7 +35,7 @@ job summary.
 
 ## Intended required merge checks
 
-The required status checks for `develop`, `release`, and `main` should be:
+The required status checks common to `develop`, `release`, and `main` should be:
 
 - `Branch Name`
 - `PR Title`
@@ -38,15 +43,26 @@ The required status checks for `develop`, `release`, and `main` should be:
 - `Labels`
 - `Repository Validation`
 
+For `develop`, add:
+
+- `Develop Sync Gate`
+
 ## Live repository merge settings
 
 The repository should stay aligned with the workflow strategy:
 
-- squash merge enabled
-- merge commits disabled
+- merge commits enabled
+- squash merge disabled
 - rebase merges disabled
-- merged branches deleted automatically
-- squash merge commit message set to the PR title
+- permanent branches must not auto-delete after merge
+- merge commit title set to the PR title
+- merge commit message set to the PR body
+
+Important:
+
+- `develop -> release` and `release -> main` must use merge commits
+- squashing permanent-branch PRs destroys shared ancestry and is the root cause of the PR #22 conflict pattern
+- disabling squash globally is intentional because GitHub merge-method settings are repository-wide
 
 ## Current repository state
 
@@ -73,6 +89,11 @@ Apply branch protections or rulesets to `develop`, `release`, and `main` with:
 - branch deletion blocked
 - linear history enabled
 - conversation resolution required
+
+Permanent-branch note:
+
+- `develop`, `release`, and `main` must remain undeletable through repository
+  settings and protection rules
 
 For `develop`, keep approval enforcement in the `Labels` workflow check instead
 of relying on GitHub reviewer approval rules, because this project uses

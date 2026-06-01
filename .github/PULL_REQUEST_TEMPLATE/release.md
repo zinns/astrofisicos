@@ -15,7 +15,7 @@ Release tracking: #<release-tracking-issue>
 ## Principal branch safety
 
 - [ ] This is the only active `develop -> release` PR for the current candidate
-- [ ] No open `main -> develop` sync PR remains unmerged
+- [ ] No open release metadata sync PR remains unmerged
 - [ ] `release` contains only stabilization work and release-approved fixes
 - [ ] No feature work was added directly to `release`
 
@@ -25,7 +25,8 @@ Release tracking: #<release-tracking-issue>
 
 ## Merge strategy
 
-- Squash merge only
+- Merge commit only
+- Do not squash permanent-branch PRs; shared ancestry prevents future release conflicts.
 
 ## Suggested commit title
 
@@ -33,4 +34,5 @@ Release tracking: #<release-tracking-issue>
 
 ## Next steps
 
-- Note anything that must happen before the `release -> main` PR is prepared.
+- After merge, automation will bump the version on `release` and create or update the `release -> main` PR.
+- Note any release-only fixes or checks that must happen before the automated `release -> main` PR is merged.

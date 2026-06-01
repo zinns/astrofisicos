@@ -3,6 +3,9 @@
 ## Local setup
 
 - Package manager: `pnpm`
+- Runtime: latest active Node.js LTS from `.nvmrc` (`lts/*`)
+- As of May 27, 2026, `.nvmrc` resolves to Node.js `24.16.0`
+- Run `nvm install --lts && nvm use` before `pnpm install` or `pnpm validate`
 - Install dependencies with `pnpm install`
 - Installing dependencies also configures Husky hooks through the `prepare` script
 
@@ -72,6 +75,9 @@ Pull requests are validated in GitHub by:
 - `.github/workflows/pr-auto-label.yml`
 - `.github/workflows/repository-validation.yml`
 
+The PR metadata workflow also blocks non-sync PRs to `develop` while a release
+metadata sync PR is still open.
+
 The intended required checks are documented in `docs/merge-protection.md`.
 
 Current limitation:
@@ -88,5 +94,8 @@ The short version:
 
 - working branches merge only into `develop`
 - releases move only through `develop -> release -> main`
-- after a production release, `main` must sync back into `develop`
+- after a production release, release metadata must sync back into `develop`
+- while that sync PR is open, other PRs to `develop` remain blocked
+- `release` is a permanent branch and must never be auto-deleted
+- all PRs use merge commits; squash is disabled to preserve branch ancestry
 - if one of those sync steps is missing, fix the missing sync step before trying to resolve branch conflicts by hand

@@ -3,8 +3,10 @@ import path from "node:path";
 
 import { createGitHubClient, getRepoContext } from "./github-api.mjs";
 import {
+  buildDevelopSyncBranchName,
   buildDevelopSyncPrBody,
   buildDevelopSyncPrTitle,
+  hasPullRequestDiff,
   buildMainReleasePrBody,
   buildMainReleasePrTitle,
   buildReleaseIssueComment,
@@ -52,6 +54,14 @@ function getPackageVersion() {
   }
 
   return packageJson.version;
+}
+
+function decodeBase64Content(value) {
+  return Buffer.from(value.replaceAll("\n", ""), "base64").toString("utf8");
+}
+
+function encodeBase64Content(value) {
+  return Buffer.from(value).toString("base64");
 }
 
 function getPullRequestNumber() {
@@ -110,6 +120,122 @@ async function findOpenReleaseTrackingIssue(client, { owner, repo }) {
   );
 }
 
+async function getBranch(client, { owner, repo }, branchName) {
+  return client.get(`/repos/${owner}/${repo}/branches/${branchName}`);
+}
+
+async function createBranchRef(client, { owner, repo }, branchName, sha) {
+  return client.post(`/repos/${owner}/${repo}/git/refs`, {
+    ref: `refs/heads/${branchName}`,
+    sha,
+  });
+}
+
+async function getFileContent(client, { owner, repo }, filePath, ref) {
+  const response = await client.get(
+    `/repos/${owner}/${repo}/contents/${filePath}?ref=${encodeURIComponent(ref)}`,
+  );
+
+  if (!response?.content || response.encoding !== "base64") {
+    throw new Error(
+      `Unable to read ${filePath} from ${ref}; expected base64 file content.`,
+    );
+  }
+
+  return {
+    content: decodeBase64Content(response.content),
+    sha: response.sha,
+  };
+}
+
+async function getPackageVersionFromBranch(client, repoContext, branchName) {
+  const file = await getFileContent(
+    client,
+    repoContext,
+    "package.json",
+    branchName,
+  );
+  const packageJson = JSON.parse(file.content);
+
+  if (!packageJson.version || typeof packageJson.version !== "string") {
+    throw new Error(
+      `package.json on ${branchName} must contain a string version field.`,
+    );
+  }
+
+  return packageJson.version;
+}
+
+async function ensureBranchExists(
+  client,
+  repoContext,
+  branchName,
+  sourceBranchName,
+) {
+  const existingBranch = await getBranch(client, repoContext, branchName);
+
+  if (existingBranch) {
+    return { branch: existingBranch, created: false };
+  }
+
+  const sourceBranch = await getBranch(client, repoContext, sourceBranchName);
+
+  if (!sourceBranch?.commit?.sha) {
+    throw new Error(
+      `Unable to restore "${branchName}" because "${sourceBranchName}" could not be resolved.`,
+    );
+  }
+
+  const createdBranch = await createBranchRef(
+    client,
+    repoContext,
+    branchName,
+    sourceBranch.commit.sha,
+  );
+
+  return {
+    branch: createdBranch,
+    created: true,
+    sourceBranchName,
+    sourceSha: sourceBranch.commit.sha,
+  };
+}
+
+async function ensureBranchFromSource(
+  client,
+  repoContext,
+  branchName,
+  sourceBranchName,
+) {
+  const existingBranch = await getBranch(client, repoContext, branchName);
+
+  if (existingBranch) {
+    return { branch: existingBranch, created: false };
+  }
+
+  const sourceBranch = await getBranch(client, repoContext, sourceBranchName);
+
+  if (!sourceBranch?.commit?.sha) {
+    throw new Error(
+      `Unable to create "${branchName}" because "${sourceBranchName}" could not be resolved.`,
+    );
+  }
+
+  const createdBranch = await createBranchRef(
+    client,
+    repoContext,
+    branchName,
+    sourceBranch.commit.sha,
+  );
+
+  return {
+    branch: createdBranch,
+    created: true,
+    sourceBranchName,
+    sourceSha: sourceBranch.commit.sha,
+  };
+}
+
 async function ensureReleaseTrackingIssue(client, repoContext) {
   const existing = await findOpenReleaseTrackingIssue(client, repoContext);
 
@@ -140,16 +266,115 @@ async function addLabels(client, { owner, repo }, issueNumber, labels) {
   });
 }
 
+async function closePullRequest(client, { owner, repo }, pullNumber, body) {
+  await client.post(`/repos/${owner}/${repo}/issues/${pullNumber}/comments`, {
+    body,
+  });
+  await client.patch(`/repos/${owner}/${repo}/pulls/${pullNumber}`, {
+    state: "closed",
+  });
+}
+
+async function updatePackageVersionOnBranch(
+  client,
+  { owner, repo },
+  { branchName, version },
+) {
+  const file = await getFileContent(
+    client,
+    { owner, repo },
+    "package.json",
+    branchName,
+  );
+  const packageJson = JSON.parse(file.content);
+
+  if (packageJson.version === version) {
+    return false;
+  }
+
+  packageJson.version = version;
+
+  await client.put(`/repos/${owner}/${repo}/contents/package.json`, {
+    branch: branchName,
+    content: encodeBase64Content(`${JSON.stringify(packageJson, null, 2)}\n`),
+    message: `chore(release): sync release metadata v${version}`,
+    sha: file.sha,
+  });
+
+  return true;
+}
+
+async function compareBranches(client, { owner, repo }, { base, head }) {
+  return client.get(`/repos/${owner}/${repo}/compare/${base}...${head}`);
+}
+
 async function syncReleasePr() {
   const client = createGitHubClient();
   const repoContext = getRepoContext();
-  const releaseIssue = await ensureReleaseTrackingIssue(client, repoContext);
+  const mainVersion = await getPackageVersionFromBranch(
+    client,
+    repoContext,
+    "main",
+  );
+  const developVersion = await getPackageVersionFromBranch(
+    client,
+    repoContext,
+    "develop",
+  );
+
+  if (mainVersion !== developVersion) {
+    const releaseIssue = await ensureReleaseTrackingIssue(client, repoContext);
+    const existingReleasePr = await findOpenPullRequest(client, repoContext, {
+      base: "release",
+      head: "develop",
+    });
+
+    if (existingReleasePr) {
+      await closePullRequest(
+        client,
+        repoContext,
+        existingReleasePr.number,
+        [
+          "Closing this release candidate because production release metadata has not been synced back into `develop` yet.",
+          "",
+          `- \`main\`: \`v${mainVersion}\``,
+          `- \`develop\`: \`v${developVersion}\``,
+          "",
+          "The release automation will create or update the release metadata sync PR first. Reopen the release candidate only after that sync lands.",
+        ].join("\n"),
+      );
+    }
+
+    await syncDevelopPr({
+      issueNumber: releaseIssue.number,
+      version: mainVersion,
+    });
+
+    appendSummary("Release PR Automation", [
+      `- Paused develop -> release PR creation because \`develop\` is on \`v${developVersion}\` and \`main\` is on \`v${mainVersion}\`.`,
+      existingReleasePr
+        ? `- Closed stale develop -> release PR #${existingReleasePr.number}.`
+        : "- No stale develop -> release PR needed closing.",
+      "- Created or updated the release metadata sync PR into `develop` first.",
+      "- Merge that sync PR before opening the next release candidate.",
+    ]);
+
+    return;
+  }
+
+  const releaseBranch = await ensureBranchExists(
+    client,
+    repoContext,
+    "release",
+    "main",
+  );
   const existingPr = await findOpenPullRequest(client, repoContext, {
     base: "release",
     head: "develop",
   });
 
   if (existingPr) {
+    const releaseIssue = await ensureReleaseTrackingIssue(client, repoContext);
     const hasReleaseReference =
       typeof existingPr.body === "string" &&
       existingPr.body.includes(`Release tracking: #${releaseIssue.number}`);
@@ -171,15 +396,48 @@ async function syncReleasePr() {
       "flow:release",
     ]);
 
-    appendSummary("Release PR Automation", [
+    const summaryLines = [];
+
+    if (releaseBranch.created) {
+      summaryLines.push(
+        `- Restored missing \`release\` branch from \`main\` at \`${releaseBranch.sourceSha.slice(0, 7)}\`.`,
+      );
+    }
+
+    summaryLines.push(
       `- Reused release tracking issue #${releaseIssue.number}.`,
       `- Reused open develop -> release PR #${existingPr.number}.`,
       "- Ensured automation labels are present.",
-    ]);
+    );
+
+    appendSummary("Release PR Automation", [...summaryLines]);
 
     return;
   }
 
+  const comparison = await compareBranches(client, repoContext, {
+    base: "release",
+    head: "develop",
+  });
+
+  if (!hasPullRequestDiff(comparison)) {
+    const summaryLines = [];
+
+    if (releaseBranch.created) {
+      summaryLines.push(
+        `- Restored missing \`release\` branch from \`main\` at \`${releaseBranch.sourceSha.slice(0, 7)}\`.`,
+      );
+    }
+
+    summaryLines.push(
+      "- No unreleased changes were detected between `develop` and `release`; no release PR was opened.",
+    );
+
+    appendSummary("Release PR Automation", summaryLines);
+    return;
+  }
+
+  const releaseIssue = await ensureReleaseTrackingIssue(client, repoContext);
   const createdPr = await client.post(
     `/repos/${repoContext.owner}/${repoContext.repo}/pulls`,
     {
@@ -197,11 +455,21 @@ async function syncReleasePr() {
     "flow:release",
   ]);
 
-  appendSummary("Release PR Automation", [
+  const summaryLines = [];
+
+  if (releaseBranch.created) {
+    summaryLines.push(
+      `- Restored missing \`release\` branch from \`main\` at \`${releaseBranch.sourceSha.slice(0, 7)}\`.`,
+    );
+  }
+
+  summaryLines.push(
     `- Reused or created release tracking issue #${releaseIssue.number}.`,
     `- Created develop -> release PR #${createdPr.number}.`,
     "- Applied automation labels. A human still needs a `release:*` label before merge.",
-  ]);
+  );
+
+  appendSummary("Release PR Automation", [...summaryLines]);
 }
 
 async function prepareMainMetadata() {
@@ -288,6 +556,20 @@ async function syncMainPr() {
     return;
   }
 
+  const comparison = await compareBranches(client, repoContext, {
+    base: "main",
+    head: "release",
+  });
+
+  if (!hasPullRequestDiff(comparison)) {
+    appendSummary("Main Release PR", [
+      "- No unreleased changes were detected between `release` and `main`; no release PR was opened.",
+      `- Target version remains \`v${nextVersion}\`.`,
+    ]);
+
+    return;
+  }
+
   const createdPr = await client.post(
     `/repos/${repoContext.owner}/${repoContext.repo}/pulls`,
     {
@@ -314,11 +596,39 @@ async function syncMainPr() {
 async function syncDevelopPr({ issueNumber, version }) {
   const client = createGitHubClient();
   const repoContext = getRepoContext();
+
+  if (!issueNumber || !version) {
+    throw new Error(
+      "RELEASE_ISSUE_NUMBER and NEXT_VERSION are required to sync develop release metadata.",
+    );
+  }
+
+  const branchName = buildDevelopSyncBranchName(issueNumber);
   const title = buildDevelopSyncPrTitle(issueNumber);
   const body = buildDevelopSyncPrBody(issueNumber, version);
+  const developVersion = await getPackageVersionFromBranch(
+    client,
+    repoContext,
+    "develop",
+  );
+
+  if (developVersion === version) {
+    appendSummary("Develop Sync PR", [
+      `- \`develop\` already contains released version \`v${version}\`; no sync PR was opened.`,
+    ]);
+
+    return;
+  }
+
+  await ensureBranchFromSource(client, repoContext, branchName, "develop");
+  await updatePackageVersionOnBranch(client, repoContext, {
+    branchName,
+    version,
+  });
+
   const existingPr = await findOpenPullRequest(client, repoContext, {
     base: "develop",
-    head: "main",
+    head: branchName,
   });
 
   if (existingPr) {
@@ -334,7 +644,7 @@ async function syncDevelopPr({ issueNumber, version }) {
     ]);
 
     appendSummary("Develop Sync PR", [
-      `- Updated main -> develop PR #${existingPr.number}.`,
+      `- Updated release metadata sync PR #${existingPr.number}.`,
       `- Synced released version \`v${version}\` back into develop metadata.`,
     ]);
 
@@ -346,7 +656,7 @@ async function syncDevelopPr({ issueNumber, version }) {
     {
       base: "develop",
       body,
-      head: "main",
+      head: branchName,
       title,
     },
   );
@@ -358,7 +668,7 @@ async function syncDevelopPr({ issueNumber, version }) {
   ]);
 
   appendSummary("Develop Sync PR", [
-    `- Created main -> develop PR #${createdPr.number}.`,
+    `- Created release metadata sync PR #${createdPr.number}.`,
     `- Synced released version \`v${version}\` back into develop metadata.`,
   ]);
 }
@@ -432,8 +742,14 @@ switch (command) {
   case "finalize-main-release":
     await finalizeMainRelease();
     break;
+  case "sync-develop-pr":
+    await syncDevelopPr({
+      issueNumber: Number(process.env.RELEASE_ISSUE_NUMBER),
+      version: process.env.NEXT_VERSION,
+    });
+    break;
   default:
     throw new Error(
-      'Unknown release automation command. Expected one of "sync-release-pr", "prepare-main-metadata", "sync-main-pr", or "finalize-main-release".',
+      'Unknown release automation command. Expected one of "sync-release-pr", "prepare-main-metadata", "sync-main-pr", "finalize-main-release", or "sync-develop-pr".',
     );
 }

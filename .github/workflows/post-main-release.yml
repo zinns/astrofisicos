@@ -6,14 +6,20 @@ on:
       - main
     types:
       - closed
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Merged release -> main PR number to finalize
+        required: true
+        type: string
 
 permissions:
   contents: write
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 concurrency:
-  group: post-main-release-${{ github.event.pull_request.number }}
+  group: post-main-release-${{ github.event.pull_request.number || inputs.pr_number || github.run_id }}
   cancel-in-progress: false
 
 env:
@@ -22,17 +28,18 @@ env:
 jobs:
   post-main-release:
     name: Post Main Release
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
+          check-latest: true
       - name: Finalize Git tag, release, and tracking issue
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_NUMBER: ${{ github.event_name == 'workflow_dispatch' && inputs.pr_number || github.event.pull_request.number }}
         run: node ./scripts/release-automation.mjs finalize-main-release
