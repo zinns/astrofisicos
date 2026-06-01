@@ -29,15 +29,19 @@ Each template includes:
 
 ## Merge strategy
 
-- Squash merge only
+- All PRs use merge commits.
+- The PR title should be used as the merge commit title.
 
-This keeps the final history aligned with PR titles and with the commit policy.
+Permanent branch PRs must preserve ancestry. Squashing those PRs makes Git treat
+later `develop`, `release`, and `main` changes as unrelated work and can create
+large add/add conflicts in later release candidates.
 
 ## Approval model
 
 For human-authored PRs targeting `develop`:
 
 - the PR must carry the `approved` label before merge
+- the PR must not bypass an open automated release metadata sync PR
 
 For automated PRs:
 
@@ -59,11 +63,14 @@ For PRs to `release`:
 chore(release): prepare release candidate (#<release-tracking-issue>)
 ```
 
-For PRs to `main`:
+For generated production snapshot PRs to `main`:
 
 ```txt
 Release 📦 vX.Y.Z
 ```
+
+`main` PRs must come from generated branches named like
+`ci/<release-issue>-main-release-vX-Y-Z`, not directly from `release`.
 
 ## GitHub-side validation
 
@@ -73,6 +80,10 @@ The repository uses `.github/workflows/pr-metadata.yml` to validate:
 - PR title
 - issue reference in the PR body
 - labels
+
+For PRs targeting `develop`, it also validates:
+
+- develop sync gate
 
 Automatic labels are applied by `.github/workflows/pr-auto-label.yml`.
 Metadata validation derives the same deterministic labels during validation so

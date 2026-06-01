@@ -34,6 +34,20 @@ function toLabelNames(input) {
     .filter(Boolean);
 }
 
+export function hasPullRequestDiff(compare) {
+  if (!compare || typeof compare !== "object") {
+    return false;
+  }
+
+  if (Array.isArray(compare.files)) {
+    return compare.files.length > 0;
+  }
+
+  return (
+    Number(compare.ahead_by ?? 0) > 0 || Number(compare.total_commits ?? 0) > 0
+  );
+}
+
 export function normalizeVersion(version) {
   const normalized = version.startsWith("v") ? version.slice(1) : version;
 
@@ -154,7 +168,8 @@ export function buildReleasePrBody(issueNumber) {
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Do not squash permanent-branch PRs; preserving ancestry prevents future release conflicts.",
     "",
     "## Suggested commit title",
     "",
@@ -162,12 +177,17 @@ export function buildReleasePrBody(issueNumber) {
     "",
     "## Next steps",
     "",
-    "- Note anything that must happen before the `release -> main` PR is prepared.",
+    "- After merge, automation will bump the version on `release` and create or update a `main`-based production snapshot PR.",
+    "- Note any release-only fixes or validation steps that must happen before the automated production snapshot PR is merged.",
   ].join("\n");
 }
 
 export function buildMainReleasePrTitle(version) {
   return `Release 📦 v${normalizeVersion(version)}`;
+}
+
+export function buildMainReleaseBranchName(issueNumber, version) {
+  return `ci/${issueNumber}-main-release-v${normalizeVersion(version).replaceAll(".", "-")}`;
 }
 
 export function buildMainReleasePrBody(issueNumber, version) {
@@ -188,11 +208,15 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Deployment expectations",
     "",
-    "- Vercel production should build from `main` only once the hosting constraint is resolved",
+    "- This PR is generated from a branch based on `main`, with the validated `release` tree copied into one release snapshot commit.",
+    "- This merge is expected to trigger the only production deployment path: production snapshot -> `main` and then Vercel building from `main`.",
+    "- `main` must contain only `Release 📦 v...` production release commits and their release PR merge commits.",
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Use the PR title as the merge commit title.",
+    "- Do not change this PR to direct `release -> main`; direct permanent-branch production merges are intentionally blocked to keep `main` release-only.",
     "",
     "## Suggested commit title",
     "",
@@ -200,12 +224,13 @@ export function buildMainReleasePrBody(issueNumber, version) {
     "",
     "## Next steps",
     "",
-    "- Note the tag, release notes, and post-merge actions expected after merge.",
+    "- After merge, automation will create or update the Git tag and GitHub Release, close the release-tracking issue, and create or update the release metadata sync PR into `develop`.",
+    "- The generated sync PR must merge before any other PR targeting `develop` proceeds.",
   ].join("\n");
 }
 
 export function buildDevelopSyncPrTitle(issueNumber) {
-  return `chore(release): sync main back to develop (#${issueNumber})`;
+  return `chore(release): sync release metadata (#${issueNumber})`;
 }
 
 export function buildDevelopSyncPrBody(issueNumber, version) {
@@ -216,8 +241,9 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Purpose",
     "",
-    `- Sync released version \`v${normalizeVersion(version)}\` from \`main\` back into \`develop\`.`,
+    `- Apply released version \`v${normalizeVersion(version)}\` onto a branch created from \`develop\`.`,
     "- Keep version metadata aligned before the next release cycle starts.",
+    "- Avoid a direct permanent-branch merge when only release metadata needs to be synchronized.",
     "",
     "## Validation",
     "",
@@ -226,7 +252,8 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Merge strategy",
     "",
-    "- Squash merge only",
+    "- Merge commit only",
+    "- Use the PR title as the merge commit title.",
     "",
     "## Suggested commit title",
     "",
@@ -234,8 +261,13 @@ export function buildDevelopSyncPrBody(issueNumber, version) {
     "",
     "## Next steps",
     "",
-    "- Merge this sync PR before the next `develop -> release` merge to avoid version drift.",
+    "- Merge this sync PR before any other PR targeting `develop` proceeds.",
+    "- After it merges, normal feature PRs to `develop` and the next `develop -> release` cycle may continue without version drift.",
   ].join("\n");
+}
+
+export function buildDevelopSyncBranchName(issueNumber) {
+  return `ci/${issueNumber}-release-metadata-sync`;
 }
 
 export function buildReleaseTag(version) {
