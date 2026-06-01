@@ -93,9 +93,10 @@ targets `develop`, `release`, or `main`.
 The short version:
 
 - working branches merge only into `develop`
-- releases move only through `develop -> release -> main`
+- releases move through `develop -> release`, then a generated production snapshot PR into `main`
 - after a production release, release metadata must sync back into `develop`
 - while that sync PR is open, other PRs to `develop` remain blocked
 - `release` is a permanent branch and must never be auto-deleted
+- `main` should contain only `Release 📦 v...` release commits and their release PR merge commits
 - all PRs use merge commits; squash is disabled to preserve branch ancestry
 - if one of those sync steps is missing, fix the missing sync step before trying to resolve branch conflicts by hand

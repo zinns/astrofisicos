@@ -64,10 +64,11 @@ For `develop -> release` PRs:
 - require `flow:release`
 - require exactly one `release:*` label
 
-For `release -> main` PRs:
+For production snapshot PRs targeting `main`:
 
 - require `automation`
 - require `flow:main`
+- require a generated branch named like `ci/123-main-release-v1-2-3`
 
 ## Automatic labels
 

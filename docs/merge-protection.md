@@ -60,7 +60,9 @@ The repository should stay aligned with the workflow strategy:
 
 Important:
 
-- `develop -> release` and `release -> main` must use merge commits
+- `develop -> release` must use merge commits
+- generated production snapshot PRs into `main` must use merge commits with the PR title as the merge commit title
+- direct `release -> main` PRs are not valid because `main` is release-only history
 - squashing permanent-branch PRs destroys shared ancestry and is the root cause of the PR #22 conflict pattern
 - disabling squash globally is intentional because GitHub merge-method settings are repository-wide
 
